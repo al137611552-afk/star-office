@@ -1,0 +1,31 @@
+:root {
+  --px-grid: 4px;
+  --font-pixel-zh: 'ArkPixelZH', monospace;
+  --font-pixel-ja: 'ArkPixelJA', monospace;
+  --font-pixel-latin: 'ArkPixelLatin', monospace;
+  --font-pixel-ui: var(--font-pixel-zh);
+
+  --color-bg-page: #1a1a2e;
+  --color-bg-page-deep: #151522;
+  --color-stage-shadow: #64477d;
+  --color-panel: #141722;
+  --color-panel-border: #0e1119;
+  --color-panel-line: #1a1b2f;
+  --color-panel-ink: #eee;
+  --color-panel-muted: #cbd5e1;
+  --color-accent-gold: #ffd700;
+  --color-accent-rose: #e94560;
+  --color-accent-green: #22c55e;
+  --color-accent-green-dark: #16a34a;
+  --color-accent-olive: #78a340;
+  --color-accent-olive-light: #8fbe4a;
+  --color-button-dark: #333;
+  --color-button-border: #555;
+  --color-card-brown: #5d4037;
+  --color-card-brown-border: #3e2723;
+  --color-bubble-bg: #ffffff;
+  --color-bubble-stroke: #000000;
+  --color-memo-paper: #fffbeb;
+  --color-memo-paper-stroke: #d4a574;
+  --color-memo-paper-ink: #8b6914;
+}

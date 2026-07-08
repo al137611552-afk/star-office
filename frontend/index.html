@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Star Office UI Remake - Step 1</title>
+  <link rel="stylesheet" href="/static/styles/tokens.css">
+  <link rel="stylesheet" href="/static/styles/base.css">
+  <link rel="stylesheet" href="/static/styles/panels.css">
+</head>
+<body>
+  <div id="floating-tools">
+    <button class="pixel-button is-active" data-lang="zh">CN</button>
+    <button class="pixel-button" data-lang="en">EN</button>
+    <button class="pixel-button" data-lang="ja">JP</button>
+  </div>
+
+  <div id="loading-overlay">
+    <div id="loading-text">正在加载 Star 的像素办公室...</div>
+    <div id="loading-progress"><div id="loading-progress-bar"></div></div>
+  </div>
+
+  <main id="app">
+    <section id="main-stage">
+      <div id="game-container"></div>
+      <div id="status-line">state=idle | detail=- | updated_at=-</div>
+    </section>
+
+    <section id="bottom-panels">
+      <article id="control-panel" class="panel pixel-frame">
+        <div id="control-title" class="panel-title">Step 1 工程壳</div>
+        <div class="panel-copy ui-even-14">
+          <div id="office-title">海辛小龙虾的办公室</div>
+          <div id="shell-done">已完成 Flask + Phaser 壳、像素字体、4px 网格、源项目色板变量。</div>
+          <div class="badge-row">
+            <button class="pixel-button pixel-button--accent">Flask</button>
+            <button class="pixel-button pixel-button--accent">Phaser</button>
+            <button class="pixel-button pixel-button--accent">Pixel CSS</button>
+          </div>
+        </div>
+      </article>
+
+      <article id="memo-panel" class="panel pixel-frame">
+        <div id="memo-title" class="panel-title">昨 日 小 记</div>
+        <div class="memo-copy">
+          <div id="memo-date" class="memo-date">2026-02-26</div>
+          <div id="memo-body" class="memo-body">本阶段只做工程壳与像素基准，不动美术内容。下一步开始还原底图和三区域布局。</div>
+        </div>
+      </article>
+
+      <article id="meta-panel" class="panel pixel-frame">
+        <div id="meta-title" class="panel-title">像素基线 / 色板</div>
+        <div class="meta-list">
+          <div>1. 禁止 transform scale 做像素缩放</div>
+          <div>2. 统一 4px grid，字号只用偶数 px</div>
+          <div>3. image-rendering: pixelated / crisp-edges</div>
+          <div>4. -webkit-font-smoothing: none</div>
+          <div id="palette-list"></div>
+        </div>
+      </article>
+    </section>
+  </main>
+
+  <script src="/static/vendor/phaser-3.80.1.min.js"></script>
+  <script type="module" src="/static/src/main.js"></script>
+</body>
+</html>
