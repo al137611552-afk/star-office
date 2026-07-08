@@ -129,7 +129,7 @@ export function setupUI(onStateSelect) {
     const payload = event.detail || {};
     const stateLabel = payload.stateLabel || payload.state || 'idle';
     const detail = payload.detail || '-';
-    typeStatus(`[${stateLabel}] ${detail}`);
+    typeStatus(`${stateLabel} · ${detail}`);
     if (payload.state) setActiveStateButton(payload.state);
   });
 

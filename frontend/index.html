@@ -3,16 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Star Office UI Remake - Step 4</title>
+  <title>Star Office UI Remake - Step 5</title>
   <link rel="stylesheet" href="/static/styles/tokens.css">
   <link rel="stylesheet" href="/static/styles/base.css">
   <link rel="stylesheet" href="/static/styles/panels.css">
 </head>
 <body>
   <div id="floating-tools">
-    <button class="pixel-button is-active" data-lang="zh">CN</button>
-    <button class="pixel-button" data-lang="en">EN</button>
-    <button class="pixel-button" data-lang="ja">JP</button>
+    <button class="pixel-button pixel-button--lang is-active" data-lang="zh">中文</button>
+    <button class="pixel-button pixel-button--lang" data-lang="en">EN</button>
+    <button class="pixel-button pixel-button--lang" data-lang="ja">日本語</button>
   </div>
 
   <div id="loading-overlay">
@@ -23,34 +23,10 @@
   <main id="app">
     <section id="main-stage" class="pixel-frame">
       <div id="game-container"></div>
-      <div id="status-line">state=idle | detail=- | updated_at=-</div>
+      <div id="status-line">正在进入像素办公室…</div>
     </section>
 
     <section id="bottom-panels">
-      <article id="control-panel" class="panel pixel-frame">
-        <div id="control-title" class="panel-title">Step 4 表现细化</div>
-        <div class="panel-copy ui-even-14">
-          <div id="office-title">海辛小龙虾的办公室</div>
-          <div id="shell-done">已接入 6 状态切换骨架、状态牌匾、基础气泡节奏与前后端 /status 联动。</div>
-          <div class="badge-row">
-            <button class="pixel-button pixel-button--accent">6 States</button>
-            <button class="pixel-button pixel-button--accent">Bubble Rhythm</button>
-            <button class="pixel-button pixel-button--accent">Status API</button>
-          </div>
-          <div class="state-test-block">
-            <div id="states-label" class="state-test-title">状态测试</div>
-            <div class="state-test-grid">
-              <button class="pixel-button" data-state="idle" data-label-key="stateIdle" data-detail-key="detailIdle">待命</button>
-              <button class="pixel-button" data-state="writing" data-label-key="stateWriting" data-detail-key="detailWriting">整理文档</button>
-              <button class="pixel-button" data-state="researching" data-label-key="stateResearching" data-detail-key="detailResearching">搜索信息</button>
-              <button class="pixel-button" data-state="executing" data-label-key="stateExecuting" data-detail-key="detailExecuting">执行任务</button>
-              <button class="pixel-button" data-state="syncing" data-label-key="stateSyncing" data-detail-key="detailSyncing">同步备份</button>
-              <button class="pixel-button" data-state="error" data-label-key="stateError" data-detail-key="detailError">出错了</button>
-            </div>
-          </div>
-        </div>
-      </article>
-
       <article id="memo-panel" class="panel pixel-frame">
         <div id="memo-title" class="panel-title">昨 日 小 记</div>
         <div class="memo-copy">
@@ -59,13 +35,34 @@
         </div>
       </article>
 
+      <article id="control-panel" class="panel pixel-frame">
+        <div id="control-title" class="panel-title">Star 状态</div>
+        <div class="panel-copy ui-even-14">
+          <div id="office-title">海辛小龙虾的办公室</div>
+          <div id="shell-done">Step 5：主状态、扩展状态、状态条和场景牌匾已统一到同一套叙述。</div>
+          <div class="state-test-block">
+            <div id="states-label" class="state-test-title">状态测试</div>
+            <div class="state-primary-grid">
+              <button id="btn-state-idle" class="pixel-button pixel-button--sprite" data-state="idle" data-label-key="stateIdle" data-detail-key="detailIdle">待命</button>
+              <button id="btn-state-writing" class="pixel-button pixel-button--sprite" data-state="writing" data-label-key="stateWriting" data-detail-key="detailWriting">工作</button>
+              <button id="btn-state-syncing" class="pixel-button pixel-button--sprite" data-state="syncing" data-label-key="stateSyncing" data-detail-key="detailSyncing">同步</button>
+              <button id="btn-state-error" class="pixel-button pixel-button--sprite" data-state="error" data-label-key="stateError" data-detail-key="detailError">报警</button>
+            </div>
+            <div class="state-secondary-grid">
+              <button class="pixel-button pixel-button--secondary" data-state="researching" data-label-key="stateResearching" data-detail-key="detailResearching">搜索信息</button>
+              <button class="pixel-button pixel-button--secondary" data-state="executing" data-label-key="stateExecuting" data-detail-key="detailExecuting">执行任务</button>
+            </div>
+          </div>
+        </div>
+      </article>
+
       <article id="meta-panel" class="panel pixel-frame">
         <div id="meta-title" class="panel-title">像素基线 / 色板</div>
         <div class="meta-list">
-          <div>1. 状态映射跟随源项目：idle / writing / researching / executing / syncing / error</div>
-          <div>2. 切换过渡当前先锁定在线性 120ms</div>
-          <div>3. 气泡主循环 8000ms，小猫气泡 18000ms</div>
-          <div>4. 下一步再细化真实帧节奏与视觉对位</div>
+          <div>1. 主状态按钮样式向源项目收敛，扩展状态退到次级控制</div>
+          <div>2. 左下状态条与场景牌匾统一为同一套状态叙述</div>
+          <div>3. 保留 120ms 切换与 8000ms / 18000ms 气泡节奏</div>
+          <div>4. 下一步可以继续做按钮精确像素切片与更强 1:1 还原</div>
           <div id="palette-list"></div>
         </div>
       </article>
