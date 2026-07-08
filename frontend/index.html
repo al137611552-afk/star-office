@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Star Office UI Remake - Step 1</title>
+  <title>Star Office UI Remake - Step 2</title>
   <link rel="stylesheet" href="/static/styles/tokens.css">
   <link rel="stylesheet" href="/static/styles/base.css">
   <link rel="stylesheet" href="/static/styles/panels.css">
@@ -21,21 +21,21 @@
   </div>
 
   <main id="app">
-    <section id="main-stage">
+    <section id="main-stage" class="pixel-frame">
       <div id="game-container"></div>
       <div id="status-line">state=idle | detail=- | updated_at=-</div>
     </section>
 
     <section id="bottom-panels">
       <article id="control-panel" class="panel pixel-frame">
-        <div id="control-title" class="panel-title">Step 1 工程壳</div>
+        <div id="control-title" class="panel-title">Step 2 静态布局</div>
         <div class="panel-copy ui-even-14">
           <div id="office-title">海辛小龙虾的办公室</div>
-          <div id="shell-done">已完成 Flask + Phaser 壳、像素字体、4px 网格、源项目色板变量。</div>
+          <div id="shell-done">已按源项目坐标恢复主场景静态构图：背景、沙发、植物、海报、咖啡机、服务器区、办公桌、桌前工作位、小猫与牌匾。</div>
           <div class="badge-row">
-            <button class="pixel-button pixel-button--accent">Flask</button>
-            <button class="pixel-button pixel-button--accent">Phaser</button>
-            <button class="pixel-button pixel-button--accent">Pixel CSS</button>
+            <button class="pixel-button pixel-button--accent">Source Layout</button>
+            <button class="pixel-button pixel-button--accent">Static Scene</button>
+            <button class="pixel-button pixel-button--accent">Pixel Locked</button>
           </div>
         </div>
       </article>
@@ -44,15 +44,15 @@
         <div id="memo-title" class="panel-title">昨 日 小 记</div>
         <div class="memo-copy">
           <div id="memo-date" class="memo-date">2026-02-26</div>
-          <div id="memo-body" class="memo-body">本阶段只做工程壳与像素基准，不动美术内容。下一步开始还原底图和三区域布局。</div>
+          <div id="memo-body" class="memo-body">这一阶段只还原静态布局，不接状态动画。下一步开始做 6 状态切换、气泡节奏和 DOM/Canvas 联动。</div>
         </div>
       </article>
 
       <article id="meta-panel" class="panel pixel-frame">
         <div id="meta-title" class="panel-title">像素基线 / 色板</div>
         <div class="meta-list">
-          <div>1. 禁止 transform scale 做像素缩放</div>
-          <div>2. 统一 4px grid，字号只用偶数 px</div>
+          <div>1. 坐标以源项目 frontend/layout.js 为主</div>
+          <div>2. 禁止 transform scale 做像素缩放</div>
           <div>3. image-rendering: pixelated / crisp-edges</div>
           <div>4. -webkit-font-smoothing: none</div>
           <div id="palette-list"></div>

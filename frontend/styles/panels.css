@@ -1,6 +1,7 @@
 #main-stage {
   position: relative;
   width: 1280px;
+  margin: 0 auto;
 }
 
 #game-container {
@@ -8,6 +9,8 @@
   width: 1280px;
   height: 720px;
   overflow: hidden;
+  border: 4px solid #0e1119;
+  background: #1a1a2e;
 }
 
 #game-container canvas {
@@ -18,14 +21,16 @@
 }
 
 #bottom-panels {
-  display: flex;
-  gap: calc(var(--px-grid) * 5);
+  display: grid;
+  grid-template-columns: 390px 390px 460px;
+  gap: 20px;
   width: 1280px;
-  margin-top: calc(var(--px-grid) * 5);
+  margin-top: 20px;
 }
 
 .panel {
   padding: 16px;
+  min-height: 300px;
 }
 
 .panel-title {
@@ -34,6 +39,7 @@
   line-height: 20px;
   margin-bottom: 16px;
   text-align: center;
+  text-shadow: 0 1px 0 #000, 0 0 1px #000;
 }
 
 #control-panel {
@@ -93,12 +99,13 @@
 #status-line {
   position: absolute;
   left: 12px;
-  bottom: 12px;
-  max-width: calc(100% - 24px);
-  background: rgba(0, 0, 0, 0.7);
+  top: 12px;
+  max-width: 420px;
+  background: rgba(20, 23, 34, 0.92);
   color: var(--color-panel-ink);
+  border: 2px solid #555;
   padding: 8px 12px;
-  font-size: 14px;
+  font-size: 12px;
   line-height: 16px;
   z-index: 20;
   white-space: nowrap;
@@ -139,7 +146,7 @@
 #floating-tools {
   position: fixed;
   top: 12px;
-  left: 12px;
+  right: 12px;
   z-index: 10001;
   display: flex;
   gap: 8px;
