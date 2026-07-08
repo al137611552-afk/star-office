@@ -86,6 +86,11 @@ export const LAYOUT = {
       depth: 50,
       scale: 0.9,
       frame: 12,
+      pingPong: {
+        leftX: 962,
+        rightX: 1050,
+        speed: 0.65,
+      },
     },
     syncAnim: {
       x: 1157,

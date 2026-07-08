@@ -11,12 +11,15 @@ const PALETTE = [
   ['#5d4037', 'plaque'],
 ];
 
-const STATE_ORDER = ['idle', 'writing', 'researching', 'executing', 'syncing', 'error'];
+const TYPEWRITER_DELAY = 50;
 
 export function setupUI(onStateSelect) {
   const state = {
     locale: 'zh',
     strings: STRINGS.zh,
+    statusTimer: null,
+    statusText: '',
+    statusTarget: '',
   };
 
   const refs = {
@@ -49,6 +52,28 @@ export function setupUI(onStateSelect) {
       const key = button.dataset.labelKey;
       if (key && strings[key]) button.textContent = strings[key];
     });
+  }
+
+  function typeStatus(nextText) {
+    if (state.statusTarget === nextText && refs.statusLine.textContent === nextText) return;
+    if (state.statusTarget === nextText && state.statusTimer) return;
+    if (state.statusTimer) {
+      clearInterval(state.statusTimer);
+      state.statusTimer = null;
+    }
+    state.statusTarget = nextText;
+    state.statusText = '';
+    refs.statusLine.textContent = '';
+    let index = 0;
+    state.statusTimer = setInterval(() => {
+      state.statusText += state.statusTarget[index] || '';
+      refs.statusLine.textContent = state.statusText;
+      index += 1;
+      if (index >= state.statusTarget.length) {
+        clearInterval(state.statusTimer);
+        state.statusTimer = null;
+      }
+    }, TYPEWRITER_DELAY);
   }
 
   function applyLocale(locale) {
@@ -102,7 +127,9 @@ export function setupUI(onStateSelect) {
 
   window.addEventListener('office-status', (event) => {
     const payload = event.detail || {};
-    refs.statusLine.textContent = `state=${payload.state || 'idle'} | detail=${payload.detail || '-'} | updated_at=${payload.updated_at || '-'}`;
+    const stateLabel = payload.stateLabel || payload.state || 'idle';
+    const detail = payload.detail || '-';
+    typeStatus(`[${stateLabel}] ${detail}`);
     if (payload.state) setActiveStateButton(payload.state);
   });
 

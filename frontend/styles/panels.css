@@ -134,18 +134,19 @@
 #status-line {
   position: absolute;
   left: 12px;
-  top: 12px;
+  bottom: 12px;
   max-width: 520px;
-  background: rgba(20, 23, 34, 0.92);
-  color: var(--color-panel-ink);
-  border: 2px solid #555;
-  padding: 8px 12px;
+  background: rgba(20, 23, 34, 0.78);
+  color: #eeeeee;
+  border: 0;
+  padding: 6px 10px;
   font-size: 12px;
   line-height: 16px;
   z-index: 20;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  text-shadow: 0 1px 0 #000;
 }
 
 #loading-overlay {

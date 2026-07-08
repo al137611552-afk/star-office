@@ -2,10 +2,10 @@ export const STRINGS = {
   zh: {
     loading: '正在加载 Star 的像素办公室...',
     officeTitle: '海辛小龙虾的办公室',
-    controlTitle: 'Step 3 状态系统',
+    controlTitle: 'Step 4 表现细化',
     memoTitle: '昨 日 小 记',
     metaTitle: '像素基线 / 色板',
-    shellDone: '已接入 6 状态切换骨架、状态牌匾、基础气泡节奏与前后端 /status 联动。',
+    shellDone: '已细化 6 状态表现、左下状态打字机、idle 呼吸感、error 巡游与 sync/server 强调。',
     memoBody: '当前阶段重点是状态切换与表现联动。下一步继续对齐 100–150ms 节奏、真实动画帧与细化 DOM 面板。',
     statesLabel: '状态测试',
     stateIdle: '待命',
@@ -24,7 +24,7 @@ export const STRINGS = {
   en: {
     loading: 'Loading Star office layout...',
     officeTitle: 'Haixin Lobster Office',
-    controlTitle: 'Step 3 State System',
+    controlTitle: 'Step 4 Presentation Refinement',
     memoTitle: 'YESTERDAY NOTES',
     metaTitle: 'Pixel Baseline / Palette',
     shellDone: 'The 6-state skeleton, plaque updates, baseline bubble rhythm, and /status linkage are now wired in.',
@@ -46,7 +46,7 @@ export const STRINGS = {
   ja: {
     loading: 'Star オフィスのレイアウトを読み込み中...',
     officeTitle: 'ハイシン・ロブスターのオフィス',
-    controlTitle: 'Step 3 状態システム',
+    controlTitle: 'Step 4 表現調整',
     memoTitle: '昨日のメモ',
     metaTitle: 'ピクセル基準 / パレット',
     shellDone: '6 状態の骨格、プレート更新、基本吹き出しテンポ、/status 連動を接続しました。',

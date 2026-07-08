@@ -27,10 +27,12 @@ export class OfficeScene extends Phaser.Scene {
   constructor() {
     super('office');
     this.currentState = 'idle';
+    this.currentDetail = 'Waiting...';
     this.lastBubble = 0;
     this.lastCatBubble = 0;
     this.bubble = null;
     this.catBubble = null;
+    this.errorBugDir = 1;
   }
 
   preload() {
@@ -70,6 +72,7 @@ export class OfficeScene extends Phaser.Scene {
     this.sofa = this.add.image(furniture.sofa.x, furniture.sofa.y, 'sofa-idle')
       .setOrigin(furniture.sofa.origin.x, furniture.sofa.origin.y)
       .setDepth(furniture.sofa.depth);
+    this.sofaBaseY = this.sofa.y;
 
     furniture.plants.forEach((plant) => {
       this.add.sprite(plant.x, plant.y, 'plants', plant.frame)
@@ -94,19 +97,23 @@ export class OfficeScene extends Phaser.Scene {
       .setDepth(furniture.coffeeMachine.depth)
       .play('coffee-machine');
 
-    this.syncAnim = this.add.sprite(furniture.syncAnim.x, furniture.syncAnim.y, 'sync-anim', furniture.syncAnim.frame)
+    this.syncAnim = this.add.sprite(furniture.syncAnim.x, furniture.syncAnim.y, 'sync-anim', 0)
       .setOrigin(furniture.syncAnim.origin.x, furniture.syncAnim.origin.y)
-      .setDepth(furniture.syncAnim.depth);
+      .setDepth(furniture.syncAnim.depth)
+      .setVisible(false);
 
     this.errorBug = this.add.sprite(furniture.errorBug.x, furniture.errorBug.y, 'error-bug', furniture.errorBug.frame)
       .setOrigin(furniture.errorBug.origin.x, furniture.errorBug.origin.y)
       .setScale(furniture.errorBug.scale)
-      .setDepth(furniture.errorBug.depth);
+      .setDepth(furniture.errorBug.depth)
+      .setVisible(false);
+    this.errorBugHomeX = furniture.errorBug.x;
 
     this.starWorking = this.add.sprite(furniture.starWorking.x, furniture.starWorking.y, 'star-working', furniture.starWorking.frame)
       .setOrigin(furniture.starWorking.origin.x, furniture.starWorking.origin.y)
       .setScale(furniture.starWorking.scale)
-      .setDepth(furniture.starWorking.depth);
+      .setDepth(furniture.starWorking.depth)
+      .setVisible(false);
 
     this.add.image(furniture.desk.x, furniture.desk.y, 'desk')
       .setOrigin(furniture.desk.origin.x, furniture.desk.origin.y)
@@ -125,8 +132,11 @@ export class OfficeScene extends Phaser.Scene {
       .setOrigin(furniture.starIdle.origin.x, furniture.starIdle.origin.y)
       .setScale(furniture.starIdle.scale)
       .setAlpha(furniture.starIdle.alpha)
-      .setDepth(furniture.starIdle.depth);
+      .setDepth(furniture.starIdle.depth)
+      .setVisible(true);
+    this.starBaseY = this.star.y;
 
+    this.createAmbientTweens();
     this.drawPlaque();
     this.applyStateVisuals('idle', true);
   }
@@ -144,7 +154,7 @@ export class OfficeScene extends Phaser.Scene {
       this.anims.create({
         key: 'coffee-machine',
         frames: this.anims.generateFrameNumbers('coffee-machine', { start: 0, end: 95 }),
-        frameRate: 12,
+        frameRate: 12.5,
         repeat: -1,
       });
     }
@@ -172,6 +182,26 @@ export class OfficeScene extends Phaser.Scene {
         repeat: -1,
       });
     }
+  }
+
+  createAmbientTweens() {
+    this.idleFloatTween = this.tweens.add({
+      targets: this.star,
+      y: this.starBaseY - 6,
+      duration: 1400,
+      yoyo: true,
+      repeat: -1,
+      ease: 'Sine.easeInOut',
+    });
+
+    this.sofaBreatheTween = this.tweens.add({
+      targets: this.sofa,
+      y: this.sofaBaseY - 2,
+      duration: 1100,
+      yoyo: true,
+      repeat: -1,
+      ease: 'Sine.easeInOut',
+    });
   }
 
   drawPlaque() {
@@ -202,7 +232,7 @@ export class OfficeScene extends Phaser.Scene {
     }).setOrigin(0.5).setDepth(3002);
   }
 
-  update(_, time) {
+  update(time) {
     if (time - this.lastBubble > BUBBLE_INTERVAL) {
       this.showBubble();
       this.lastBubble = time;
@@ -211,20 +241,36 @@ export class OfficeScene extends Phaser.Scene {
       this.showCatBubble();
       this.lastCatBubble = time;
     }
+
+    if (this.currentState === 'error' && this.errorBug.visible) {
+      const { leftX, rightX, speed } = LAYOUT.furniture.errorBug.pingPong;
+      this.errorBug.x += speed * this.errorBugDir;
+      this.errorBug.y = LAYOUT.furniture.errorBug.y;
+      if (this.errorBug.x >= rightX) {
+        this.errorBug.x = rightX;
+        this.errorBugDir = -1;
+      } else if (this.errorBug.x <= leftX) {
+        this.errorBug.x = leftX;
+        this.errorBugDir = 1;
+      }
+    } else if (this.errorBug) {
+      this.errorBug.x = this.errorBugHomeX;
+    }
   }
 
   setStatus(state) {
     const nextState = STATES[state.state] ? state.state : 'idle';
-    const payload = { ...state, state: nextState };
+    const payload = { ...state, state: nextState, stateLabel: (STATES[nextState] || STATES.idle).name };
+    const changed = nextState !== this.currentState;
 
-    if (nextState !== this.currentState) {
+    if (changed) {
       this.tweens.add({
         targets: [this.star, this.starWorking, this.errorBug, this.syncAnim],
-        alpha: 0.2,
+        alpha: 0.25,
         duration: TRANSITION_MS,
         ease: 'Linear',
         yoyo: true,
-        hold: 20,
+        hold: 16,
         onYoyo: () => this.applyStateVisuals(nextState, false),
       });
     } else {
@@ -242,9 +288,10 @@ export class OfficeScene extends Phaser.Scene {
     const busyAtDesk = ['writing', 'researching', 'executing'].includes(stateName);
     const syncing = stateName === 'syncing';
     const errored = stateName === 'error';
+    const idle = stateName === 'idle';
 
-    this.star.setVisible(stateName === 'idle');
-    this.star.setAlpha(stateName === 'idle' ? 0.95 : 0);
+    this.star.setVisible(idle);
+    this.star.setAlpha(idle ? 0.95 : 0);
 
     this.starWorking.setVisible(busyAtDesk);
     this.starWorking.setAlpha(busyAtDesk ? 1 : 0);
@@ -254,20 +301,24 @@ export class OfficeScene extends Phaser.Scene {
     this.errorBug.setVisible(errored);
     this.errorBug.setAlpha(errored ? 1 : 0);
     if (errored) this.errorBug.play('error-bug', true);
-    else this.errorBug.stop();
+    else {
+      this.errorBug.stop();
+      this.errorBug.setFrame(LAYOUT.furniture.errorBug.frame);
+      this.errorBug.x = this.errorBugHomeX;
+    }
 
     this.syncAnim.setVisible(syncing);
     this.syncAnim.setAlpha(syncing ? 1 : 0);
     if (syncing) this.syncAnim.play('sync-anim', true);
     else {
       this.syncAnim.stop();
-      this.syncAnim.setFrame(LAYOUT.furniture.syncAnim.frame);
+      this.syncAnim.setFrame(0);
     }
 
-    if (stateName === 'idle') {
+    if (idle) {
       this.serverroom.stop();
       this.serverroom.setFrame(0);
-    } else {
+    } else if (!this.serverroom.anims.isPlaying || this.serverroom.anims.currentAnim?.key !== 'serverroom-on') {
       this.serverroom.play('serverroom-on', true);
     }
 
@@ -282,7 +333,7 @@ export class OfficeScene extends Phaser.Scene {
     const info = STATES[payload.state] || STATES.idle;
     const detail = payload.detail || '';
     if (this.plaqueText) {
-      this.plaqueText.setText(`[${info.name}] ${detail}`.slice(0, 30));
+      this.plaqueText.setText(`[${info.name}] ${detail}`.slice(0, 28));
     }
   }
 
@@ -334,8 +385,7 @@ export class OfficeScene extends Phaser.Scene {
       this.catBubble.destroy();
       this.catBubble = null;
     }
-    const texts = BUBBLE_TEXTS.cat;
-    const text = texts[Math.floor(Math.random() * texts.length)];
+    const text = BUBBLE_TEXTS.cat[Math.floor(Math.random() * BUBBLE_TEXTS.cat.length)];
     const anchorX = this.cat.x;
     const anchorY = this.cat.y - 60;
     const bg = this.add.rectangle(anchorX, anchorY, text.length * 10 + 20, 24, 0xfffbeb, 0.95);
