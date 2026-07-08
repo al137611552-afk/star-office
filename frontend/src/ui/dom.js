@@ -11,7 +11,9 @@ const PALETTE = [
   ['#5d4037', 'plaque'],
 ];
 
-export function setupUI() {
+const STATE_ORDER = ['idle', 'writing', 'researching', 'executing', 'syncing', 'error'];
+
+export function setupUI(onStateSelect) {
   const state = {
     locale: 'zh',
     strings: STRINGS.zh,
@@ -31,12 +33,22 @@ export function setupUI() {
     statusLine: document.getElementById('status-line'),
     paletteList: document.getElementById('palette-list'),
     stateButtons: [...document.querySelectorAll('[data-lang]')],
+    stateTestButtons: [...document.querySelectorAll('[data-state]')],
+    statesLabel: document.getElementById('states-label'),
   };
 
   function renderPalette() {
     refs.paletteList.innerHTML = PALETTE.map(([hex, label]) => `
       <span class="palette-swatch"><span class="palette-chip" style="background:${hex}"></span>${label} ${hex}</span>
     `).join('');
+  }
+
+  function updateStateTestLabels(strings) {
+    if (refs.statesLabel) refs.statesLabel.textContent = strings.statesLabel;
+    refs.stateTestButtons.forEach((button) => {
+      const key = button.dataset.labelKey;
+      if (key && strings[key]) button.textContent = strings[key];
+    });
   }
 
   function applyLocale(locale) {
@@ -57,6 +69,7 @@ export function setupUI() {
     refs.metaTitle.textContent = strings.metaTitle;
     refs.shellDone.textContent = strings.shellDone;
     refs.memoBody.textContent = strings.memoBody;
+    updateStateTestLabels(strings);
 
     refs.stateButtons.forEach((button) => {
       button.classList.toggle('is-active', button.dataset.lang === locale);
@@ -67,6 +80,22 @@ export function setupUI() {
     button.addEventListener('click', () => applyLocale(button.dataset.lang));
   });
 
+  refs.stateTestButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+      const stateName = button.dataset.state;
+      const detailKey = button.dataset.detailKey;
+      const detail = state.strings[detailKey] || stateName;
+      if (onStateSelect) onStateSelect(stateName, detail);
+      setActiveStateButton(stateName);
+    });
+  });
+
+  function setActiveStateButton(stateName) {
+    refs.stateTestButtons.forEach((button) => {
+      button.classList.toggle('is-active', button.dataset.state === stateName);
+    });
+  }
+
   window.addEventListener('asset-progress', (event) => {
     refs.loadingBar.style.width = `${Math.round(event.detail * 100)}%`;
   });
@@ -74,10 +103,12 @@ export function setupUI() {
   window.addEventListener('office-status', (event) => {
     const payload = event.detail || {};
     refs.statusLine.textContent = `state=${payload.state || 'idle'} | detail=${payload.detail || '-'} | updated_at=${payload.updated_at || '-'}`;
+    if (payload.state) setActiveStateButton(payload.state);
   });
 
   renderPalette();
   applyLocale('zh');
+  setActiveStateButton('idle');
 
   return {
     hideLoading() {
@@ -87,5 +118,10 @@ export function setupUI() {
       refs.memoDate.textContent = date;
       refs.memoBody.textContent = memo;
     },
+    getStateDetail(stateName) {
+      const key = `detail${stateName.charAt(0).toUpperCase()}${stateName.slice(1)}`;
+      return state.strings[key] || stateName;
+    },
+    setActiveStateButton,
   };
 }

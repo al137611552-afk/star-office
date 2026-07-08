@@ -1,9 +1,36 @@
 import { GAME_HEIGHT, GAME_WIDTH, LAYOUT } from '../config/layout.js';
 
+const STATES = {
+  idle: { name: '待命', area: 'breakroom' },
+  writing: { name: '整理文档', area: 'writing' },
+  researching: { name: '搜索信息', area: 'researching' },
+  executing: { name: '执行任务', area: 'writing' },
+  syncing: { name: '同步备份', area: 'writing' },
+  error: { name: '出错了', area: 'error' },
+};
+
+const BUBBLE_TEXTS = {
+  idle: ['待命中：耳朵竖起来了', '我在这儿，随时可以开工'],
+  writing: ['进入专注模式：勿扰', '先把关键路径跑通', '把复杂变简单'],
+  researching: ['先搜集上下文', '让我再查一遍资料', '把线索串起来'],
+  executing: ['开始落地执行', '把计划变成结果', '现在进入实操阶段'],
+  syncing: ['正在同步备份', '别急，我先对齐版本', '把变更安全落盘'],
+  error: ['这里有异常', '先别慌，我在排查', '发现 bug，马上处理'],
+  cat: ['喵~', '咕噜咕噜…'],
+};
+
+const BUBBLE_INTERVAL = 8000;
+const CAT_BUBBLE_INTERVAL = 18000;
+const TRANSITION_MS = 120;
+
 export class OfficeScene extends Phaser.Scene {
   constructor() {
     super('office');
     this.currentState = 'idle';
+    this.lastBubble = 0;
+    this.lastCatBubble = 0;
+    this.bubble = null;
+    this.catBubble = null;
   }
 
   preload() {
@@ -29,6 +56,8 @@ export class OfficeScene extends Phaser.Scene {
   }
 
   create() {
+    this.createAnimations();
+
     const bg = this.add.image(LAYOUT.stage.background.x, LAYOUT.stage.background.y, 'office-bg');
     bg.setOrigin(0.5).setDepth(0);
 
@@ -38,7 +67,7 @@ export class OfficeScene extends Phaser.Scene {
       .setOrigin(furniture.sofaShadow.origin.x, furniture.sofaShadow.origin.y)
       .setDepth(furniture.sofaShadow.depth);
 
-    this.add.image(furniture.sofa.x, furniture.sofa.y, 'sofa-idle')
+    this.sofa = this.add.image(furniture.sofa.x, furniture.sofa.y, 'sofa-idle')
       .setOrigin(furniture.sofa.origin.x, furniture.sofa.origin.y)
       .setDepth(furniture.sofa.depth);
 
@@ -52,7 +81,7 @@ export class OfficeScene extends Phaser.Scene {
       .setOrigin(0.5)
       .setDepth(furniture.poster.depth);
 
-    this.add.sprite(furniture.serverroom.x, furniture.serverroom.y, 'serverroom', furniture.serverroom.frame)
+    this.serverroom = this.add.sprite(furniture.serverroom.x, furniture.serverroom.y, 'serverroom', furniture.serverroom.frame)
       .setOrigin(furniture.serverroom.origin.x, furniture.serverroom.origin.y)
       .setDepth(furniture.serverroom.depth);
 
@@ -62,18 +91,19 @@ export class OfficeScene extends Phaser.Scene {
 
     this.add.sprite(furniture.coffeeMachine.x, furniture.coffeeMachine.y, 'coffee-machine', furniture.coffeeMachine.frame)
       .setOrigin(furniture.coffeeMachine.origin.x, furniture.coffeeMachine.origin.y)
-      .setDepth(furniture.coffeeMachine.depth);
+      .setDepth(furniture.coffeeMachine.depth)
+      .play('coffee-machine');
 
-    this.add.sprite(furniture.syncAnim.x, furniture.syncAnim.y, 'sync-anim', furniture.syncAnim.frame)
+    this.syncAnim = this.add.sprite(furniture.syncAnim.x, furniture.syncAnim.y, 'sync-anim', furniture.syncAnim.frame)
       .setOrigin(furniture.syncAnim.origin.x, furniture.syncAnim.origin.y)
       .setDepth(furniture.syncAnim.depth);
 
-    this.add.sprite(furniture.errorBug.x, furniture.errorBug.y, 'error-bug', furniture.errorBug.frame)
+    this.errorBug = this.add.sprite(furniture.errorBug.x, furniture.errorBug.y, 'error-bug', furniture.errorBug.frame)
       .setOrigin(furniture.errorBug.origin.x, furniture.errorBug.origin.y)
       .setScale(furniture.errorBug.scale)
       .setDepth(furniture.errorBug.depth);
 
-    this.add.sprite(furniture.starWorking.x, furniture.starWorking.y, 'star-working', furniture.starWorking.frame)
+    this.starWorking = this.add.sprite(furniture.starWorking.x, furniture.starWorking.y, 'star-working', furniture.starWorking.frame)
       .setOrigin(furniture.starWorking.origin.x, furniture.starWorking.origin.y)
       .setScale(furniture.starWorking.scale)
       .setDepth(furniture.starWorking.depth);
@@ -87,7 +117,7 @@ export class OfficeScene extends Phaser.Scene {
       .setScale(furniture.flower.scale)
       .setDepth(furniture.flower.depth);
 
-    this.add.sprite(furniture.cat.x, furniture.cat.y, 'cats', furniture.cat.frame)
+    this.cat = this.add.sprite(furniture.cat.x, furniture.cat.y, 'cats', furniture.cat.frame)
       .setOrigin(furniture.cat.origin.x, furniture.cat.origin.y)
       .setDepth(furniture.cat.depth);
 
@@ -98,6 +128,50 @@ export class OfficeScene extends Phaser.Scene {
       .setDepth(furniture.starIdle.depth);
 
     this.drawPlaque();
+    this.applyStateVisuals('idle', true);
+  }
+
+  createAnimations() {
+    if (!this.anims.exists('serverroom-on')) {
+      this.anims.create({
+        key: 'serverroom-on',
+        frames: this.anims.generateFrameNumbers('serverroom', { start: 0, end: 39 }),
+        frameRate: 6,
+        repeat: -1,
+      });
+    }
+    if (!this.anims.exists('coffee-machine')) {
+      this.anims.create({
+        key: 'coffee-machine',
+        frames: this.anims.generateFrameNumbers('coffee-machine', { start: 0, end: 95 }),
+        frameRate: 12,
+        repeat: -1,
+      });
+    }
+    if (!this.anims.exists('star-working')) {
+      this.anims.create({
+        key: 'star-working',
+        frames: this.anims.generateFrameNumbers('star-working', { start: 0, end: 191 }),
+        frameRate: 12,
+        repeat: -1,
+      });
+    }
+    if (!this.anims.exists('error-bug')) {
+      this.anims.create({
+        key: 'error-bug',
+        frames: this.anims.generateFrameNumbers('error-bug', { start: 0, end: 95 }),
+        frameRate: 12,
+        repeat: -1,
+      });
+    }
+    if (!this.anims.exists('sync-anim')) {
+      this.anims.create({
+        key: 'sync-anim',
+        frames: this.anims.generateFrameNumbers('sync-anim', { start: 1, end: 52 }),
+        frameRate: 12,
+        repeat: -1,
+      });
+    }
   }
 
   drawPlaque() {
@@ -128,9 +202,158 @@ export class OfficeScene extends Phaser.Scene {
     }).setOrigin(0.5).setDepth(3002);
   }
 
+  update(_, time) {
+    if (time - this.lastBubble > BUBBLE_INTERVAL) {
+      this.showBubble();
+      this.lastBubble = time;
+    }
+    if (time - this.lastCatBubble > CAT_BUBBLE_INTERVAL) {
+      this.showCatBubble();
+      this.lastCatBubble = time;
+    }
+  }
+
   setStatus(state) {
-    this.currentState = state.state || 'idle';
-    window.dispatchEvent(new CustomEvent('office-status', { detail: state }));
+    const nextState = STATES[state.state] ? state.state : 'idle';
+    const payload = { ...state, state: nextState };
+
+    if (nextState !== this.currentState) {
+      this.tweens.add({
+        targets: [this.star, this.starWorking, this.errorBug, this.syncAnim],
+        alpha: 0.2,
+        duration: TRANSITION_MS,
+        ease: 'Linear',
+        yoyo: true,
+        hold: 20,
+        onYoyo: () => this.applyStateVisuals(nextState, false),
+      });
+    } else {
+      this.applyStateVisuals(nextState, false);
+    }
+
+    this.currentState = nextState;
+    this.currentDetail = payload.detail || '';
+    this.updatePlaque(payload);
+    window.dispatchEvent(new CustomEvent('office-status', { detail: payload }));
+  }
+
+  applyStateVisuals(stateName, immediate = false) {
+    this.currentState = stateName;
+    const busyAtDesk = ['writing', 'researching', 'executing'].includes(stateName);
+    const syncing = stateName === 'syncing';
+    const errored = stateName === 'error';
+
+    this.star.setVisible(stateName === 'idle');
+    this.star.setAlpha(stateName === 'idle' ? 0.95 : 0);
+
+    this.starWorking.setVisible(busyAtDesk);
+    this.starWorking.setAlpha(busyAtDesk ? 1 : 0);
+    if (busyAtDesk) this.starWorking.play('star-working', true);
+    else this.starWorking.stop();
+
+    this.errorBug.setVisible(errored);
+    this.errorBug.setAlpha(errored ? 1 : 0);
+    if (errored) this.errorBug.play('error-bug', true);
+    else this.errorBug.stop();
+
+    this.syncAnim.setVisible(syncing);
+    this.syncAnim.setAlpha(syncing ? 1 : 0);
+    if (syncing) this.syncAnim.play('sync-anim', true);
+    else {
+      this.syncAnim.stop();
+      this.syncAnim.setFrame(LAYOUT.furniture.syncAnim.frame);
+    }
+
+    if (stateName === 'idle') {
+      this.serverroom.stop();
+      this.serverroom.setFrame(0);
+    } else {
+      this.serverroom.play('serverroom-on', true);
+    }
+
+    if (immediate) return;
+    if (this.bubble) {
+      this.bubble.destroy();
+      this.bubble = null;
+    }
+  }
+
+  updatePlaque(payload) {
+    const info = STATES[payload.state] || STATES.idle;
+    const detail = payload.detail || '';
+    if (this.plaqueText) {
+      this.plaqueText.setText(`[${info.name}] ${detail}`.slice(0, 30));
+    }
+  }
+
+  getBubbleAnchor() {
+    if (this.currentState === 'syncing' && this.syncAnim.visible) {
+      return { x: this.syncAnim.x, y: this.syncAnim.y };
+    }
+    if (this.currentState === 'error' && this.errorBug.visible) {
+      return { x: this.errorBug.x, y: this.errorBug.y };
+    }
+    if (this.starWorking.visible) {
+      return { x: this.starWorking.x, y: this.starWorking.y };
+    }
+    return { x: this.star.x, y: this.star.y };
+  }
+
+  showBubble() {
+    if (this.bubble) {
+      this.bubble.destroy();
+      this.bubble = null;
+    }
+    if (this.currentState === 'idle') return;
+
+    const texts = BUBBLE_TEXTS[this.currentState] || BUBBLE_TEXTS.idle;
+    const text = texts[Math.floor(Math.random() * texts.length)];
+    const { x, y } = this.getBubbleAnchor();
+    const bubbleY = y - 70;
+    const bg = this.add.rectangle(x, bubbleY, text.length * 10 + 20, 28, 0xffffff, 0.95);
+    bg.setStrokeStyle(2, 0x000000);
+    const txt = this.add.text(x, bubbleY, text, {
+      fontFamily: 'ArkPixelZH, monospace',
+      fontSize: '12px',
+      color: '#000000',
+      align: 'center',
+    }).setOrigin(0.5);
+    this.bubble = this.add.container(0, 0, [bg, txt]);
+    this.bubble.setDepth(1200);
+    this.time.delayedCall(3000, () => {
+      if (this.bubble) {
+        this.bubble.destroy();
+        this.bubble = null;
+      }
+    });
+  }
+
+  showCatBubble() {
+    if (!this.cat) return;
+    if (this.catBubble) {
+      this.catBubble.destroy();
+      this.catBubble = null;
+    }
+    const texts = BUBBLE_TEXTS.cat;
+    const text = texts[Math.floor(Math.random() * texts.length)];
+    const anchorX = this.cat.x;
+    const anchorY = this.cat.y - 60;
+    const bg = this.add.rectangle(anchorX, anchorY, text.length * 10 + 20, 24, 0xfffbeb, 0.95);
+    bg.setStrokeStyle(2, 0xd4a574);
+    const txt = this.add.text(anchorX, anchorY, text, {
+      fontFamily: 'ArkPixelZH, monospace',
+      fontSize: '11px',
+      color: '#8b6914',
+      align: 'center',
+    }).setOrigin(0.5);
+    this.catBubble = this.add.container(0, 0, [bg, txt]);
+    this.catBubble.setDepth(2100);
+    this.time.delayedCall(4000, () => {
+      if (this.catBubble) {
+        this.catBubble.destroy();
+        this.catBubble = null;
+      }
+    });
   }
 }
 

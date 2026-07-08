@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Star Office UI Remake - Step 2</title>
+  <title>Star Office UI Remake - Step 3</title>
   <link rel="stylesheet" href="/static/styles/tokens.css">
   <link rel="stylesheet" href="/static/styles/base.css">
   <link rel="stylesheet" href="/static/styles/panels.css">
@@ -28,14 +28,25 @@
 
     <section id="bottom-panels">
       <article id="control-panel" class="panel pixel-frame">
-        <div id="control-title" class="panel-title">Step 2 静态布局</div>
+        <div id="control-title" class="panel-title">Step 3 状态系统</div>
         <div class="panel-copy ui-even-14">
           <div id="office-title">海辛小龙虾的办公室</div>
-          <div id="shell-done">已按源项目坐标恢复主场景静态构图：背景、沙发、植物、海报、咖啡机、服务器区、办公桌、桌前工作位、小猫与牌匾。</div>
+          <div id="shell-done">已接入 6 状态切换骨架、状态牌匾、基础气泡节奏与前后端 /status 联动。</div>
           <div class="badge-row">
-            <button class="pixel-button pixel-button--accent">Source Layout</button>
-            <button class="pixel-button pixel-button--accent">Static Scene</button>
-            <button class="pixel-button pixel-button--accent">Pixel Locked</button>
+            <button class="pixel-button pixel-button--accent">6 States</button>
+            <button class="pixel-button pixel-button--accent">Bubble Rhythm</button>
+            <button class="pixel-button pixel-button--accent">Status API</button>
+          </div>
+          <div class="state-test-block">
+            <div id="states-label" class="state-test-title">状态测试</div>
+            <div class="state-test-grid">
+              <button class="pixel-button" data-state="idle" data-label-key="stateIdle" data-detail-key="detailIdle">待命</button>
+              <button class="pixel-button" data-state="writing" data-label-key="stateWriting" data-detail-key="detailWriting">整理文档</button>
+              <button class="pixel-button" data-state="researching" data-label-key="stateResearching" data-detail-key="detailResearching">搜索信息</button>
+              <button class="pixel-button" data-state="executing" data-label-key="stateExecuting" data-detail-key="detailExecuting">执行任务</button>
+              <button class="pixel-button" data-state="syncing" data-label-key="stateSyncing" data-detail-key="detailSyncing">同步备份</button>
+              <button class="pixel-button" data-state="error" data-label-key="stateError" data-detail-key="detailError">出错了</button>
+            </div>
           </div>
         </div>
       </article>
@@ -44,17 +55,17 @@
         <div id="memo-title" class="panel-title">昨 日 小 记</div>
         <div class="memo-copy">
           <div id="memo-date" class="memo-date">2026-02-26</div>
-          <div id="memo-body" class="memo-body">这一阶段只还原静态布局，不接状态动画。下一步开始做 6 状态切换、气泡节奏和 DOM/Canvas 联动。</div>
+          <div id="memo-body" class="memo-body">当前阶段重点是状态切换与表现联动。下一步继续对齐 100–150ms 节奏、真实动画帧与细化 DOM 面板。</div>
         </div>
       </article>
 
       <article id="meta-panel" class="panel pixel-frame">
         <div id="meta-title" class="panel-title">像素基线 / 色板</div>
         <div class="meta-list">
-          <div>1. 坐标以源项目 frontend/layout.js 为主</div>
-          <div>2. 禁止 transform scale 做像素缩放</div>
-          <div>3. image-rendering: pixelated / crisp-edges</div>
-          <div>4. -webkit-font-smoothing: none</div>
+          <div>1. 状态映射跟随源项目：idle / writing / researching / executing / syncing / error</div>
+          <div>2. 切换过渡当前先锁定在线性 120ms</div>
+          <div>3. 气泡主循环 8000ms，小猫气泡 18000ms</div>
+          <div>4. 下一步再细化真实帧节奏与视觉对位</div>
           <div id="palette-list"></div>
         </div>
       </article>

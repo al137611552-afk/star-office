@@ -1,9 +1,13 @@
-import { fetchStatus, fetchYesterdayMemo } from './core/api.js';
+import { fetchStatus, fetchYesterdayMemo, setOfficeState } from './core/api.js';
 import { createGameConfig } from './scene/office-scene.js';
 import { setupUI } from './ui/dom.js';
 
 async function main() {
-  const ui = setupUI();
+  const ui = setupUI(async (stateName, detail) => {
+    await setOfficeState(stateName, detail);
+    const status = await fetchStatus();
+    scene.setStatus(status);
+  });
   const game = new Phaser.Game(createGameConfig());
 
   await new Promise((resolve) => {
@@ -30,7 +34,7 @@ async function main() {
     } catch (error) {
       console.error(error);
     }
-  }, 4000);
+  }, 2000);
 }
 
 main().catch((error) => {
