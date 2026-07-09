@@ -118,8 +118,8 @@ export const LAYOUT = {
   },
   plaque: {
     x: 640,
-    y: 684,
-    width: 420,
-    height: 44,
+    y: 686,
+    width: 364,
+    height: 42,
   },
 };

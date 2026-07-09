@@ -206,29 +206,41 @@ export class OfficeScene extends Phaser.Scene {
 
   drawPlaque() {
     const { x, y, width, height } = LAYOUT.plaque;
-    const bg = this.add.rectangle(x, y, width, height, 0x5d4037).setDepth(3000);
-    bg.setStrokeStyle(3, 0x3e2723);
-    this.add.text(x - 190, y, '⭐', {
-      fontFamily: 'ArkPixelLatin, monospace',
-      fontSize: '20px',
-      color: '#ffd700',
-      stroke: '#000000',
-      strokeThickness: 2,
-    }).setOrigin(0.5).setDepth(3001);
-    this.add.text(x + 190, y, '⭐', {
-      fontFamily: 'ArkPixelLatin, monospace',
-      fontSize: '20px',
-      color: '#ffd700',
-      stroke: '#000000',
-      strokeThickness: 2,
-    }).setOrigin(0.5).setDepth(3001);
-    this.plaqueText = this.add.text(x, y, '海辛小龙虾的办公室', {
+
+    this.plaqueShadow = this.add.rectangle(x, y + 2, width, height, 0x120e0d, 0.5)
+      .setDepth(2998);
+    this.plaqueBase = this.add.rectangle(x, y, width, height, 0x2c1f1a, 0.94)
+      .setDepth(2999);
+    this.plaqueBase.setStrokeStyle(2, 0x6a4d39);
+
+    this.plaqueTrim = this.add.rectangle(x, y - 10, width - 18, 8, 0x8f6c4c, 0.96)
+      .setDepth(3000);
+    this.plaqueTrim.setStrokeStyle(1, 0xc6a16f);
+
+    this.plaqueInset = this.add.rectangle(x, y + 4, width - 20, height - 18, 0x211714, 0.72)
+      .setDepth(3000);
+    this.plaqueInset.setStrokeStyle(1, 0x3e2723);
+
+    this.add.circle(x - width / 2 + 16, y - 10, 2.5, 0xffd700).setDepth(3001);
+    this.add.circle(x + width / 2 - 16, y - 10, 2.5, 0xffd700).setDepth(3001);
+
+    this.plaqueStateText = this.add.text(x, y - 7, '待命', {
       fontFamily: 'ArkPixelZH, monospace',
-      fontSize: '18px',
+      fontSize: '12px',
       color: '#ffd700',
       stroke: '#000000',
       strokeThickness: 2,
       fontStyle: 'bold',
+      align: 'center',
+    }).setOrigin(0.5).setDepth(3002);
+
+    this.plaqueDetailText = this.add.text(x, y + 9, '耳朵竖起来了', {
+      fontFamily: 'ArkPixelZH, monospace',
+      fontSize: '11px',
+      color: '#f4e7c1',
+      stroke: '#000000',
+      strokeThickness: 2,
+      align: 'center',
     }).setOrigin(0.5).setDepth(3002);
   }
 
@@ -331,9 +343,12 @@ export class OfficeScene extends Phaser.Scene {
 
   updatePlaque(payload) {
     const info = STATES[payload.state] || STATES.idle;
-    const detail = payload.detail || '';
-    if (this.plaqueText) {
-      this.plaqueText.setText(`[${info.name}] ${detail}`.slice(0, 28));
+    const detail = (payload.detail || '').slice(0, 22);
+    if (this.plaqueStateText) {
+      this.plaqueStateText.setText(info.name);
+    }
+    if (this.plaqueDetailText) {
+      this.plaqueDetailText.setText(detail || '耳朵竖起来了');
     }
   }
 

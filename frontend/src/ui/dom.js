@@ -11,6 +11,15 @@ const PALETTE = [
   ['#5d4037', 'plaque'],
 ];
 
+const AREA_KEY_BY_STATE = {
+  idle: 'areaIdle',
+  writing: 'areaWriting',
+  researching: 'areaResearching',
+  executing: 'areaExecuting',
+  syncing: 'areaSyncing',
+  error: 'areaError',
+};
+
 const TYPEWRITER_DELAY = 50;
 
 export function setupUI(onStateSelect) {
@@ -20,6 +29,8 @@ export function setupUI(onStateSelect) {
     statusTimer: null,
     statusText: '',
     statusTarget: '',
+    currentOfficeState: 'idle',
+    currentOfficeDetail: STRINGS.zh.detailIdle,
   };
 
   const refs = {
@@ -30,20 +41,51 @@ export function setupUI(onStateSelect) {
     controlTitle: document.getElementById('control-title'),
     memoTitle: document.getElementById('memo-title'),
     metaTitle: document.getElementById('meta-title'),
+    metaKicker: document.getElementById('meta-kicker'),
+    metaSummary: document.getElementById('meta-summary'),
+    metaLabelScene: document.getElementById('meta-label-scene'),
+    metaLabelFocus: document.getElementById('meta-label-focus'),
+    metaLabelMotion: document.getElementById('meta-label-motion'),
+    metaLabelBubbles: document.getElementById('meta-label-bubbles'),
+    metaLabelPalette: document.getElementById('meta-label-palette'),
+    metaValueScene: document.getElementById('meta-value-scene'),
+    metaValueFocus: document.getElementById('meta-value-focus'),
+    metaValueMotion: document.getElementById('meta-value-motion'),
+    metaValueBubbles: document.getElementById('meta-value-bubbles'),
     shellDone: document.getElementById('shell-done'),
     memoBody: document.getElementById('memo-body'),
     memoDate: document.getElementById('memo-date'),
     statusLine: document.getElementById('status-line'),
     paletteList: document.getElementById('palette-list'),
-    stateButtons: [...document.querySelectorAll('[data-lang]')],
+    langButtons: [...document.querySelectorAll('[data-lang]')],
     stateTestButtons: [...document.querySelectorAll('[data-state]')],
     statesLabel: document.getElementById('states-label'),
   };
 
   function renderPalette() {
     refs.paletteList.innerHTML = PALETTE.map(([hex, label]) => `
-      <span class="palette-swatch"><span class="palette-chip" style="background:${hex}"></span>${label} ${hex}</span>
+      <span class="palette-swatch"><span class="palette-chip" style="background:${hex}"></span>${label}</span>
     `).join('');
+  }
+
+  function getAreaLabel(strings, stateName) {
+    const key = AREA_KEY_BY_STATE[stateName] || AREA_KEY_BY_STATE.idle;
+    return strings[key] || stateName;
+  }
+
+  function renderMeta(strings) {
+    refs.metaKicker.textContent = strings.metaKicker;
+    refs.metaSummary.textContent = strings.metaSummary;
+    refs.metaLabelScene.textContent = strings.metaLabelScene;
+    refs.metaLabelFocus.textContent = strings.metaLabelFocus;
+    refs.metaLabelMotion.textContent = strings.metaLabelMotion;
+    refs.metaLabelBubbles.textContent = strings.metaLabelBubbles;
+    refs.metaLabelPalette.textContent = strings.metaLabelPalette;
+    refs.metaValueScene.textContent = getAreaLabel(strings, state.currentOfficeState);
+    refs.metaValueFocus.textContent = state.currentOfficeDetail || strings.detailIdle;
+    refs.metaValueMotion.textContent = strings.metaMotionValue;
+    refs.metaValueBubbles.textContent = strings.metaBubbleValue;
+    renderPalette();
   }
 
   function updateStateTestLabels(strings) {
@@ -95,13 +137,14 @@ export function setupUI(onStateSelect) {
     refs.shellDone.textContent = strings.shellDone;
     refs.memoBody.textContent = strings.memoBody;
     updateStateTestLabels(strings);
+    renderMeta(strings);
 
-    refs.stateButtons.forEach((button) => {
+    refs.langButtons.forEach((button) => {
       button.classList.toggle('is-active', button.dataset.lang === locale);
     });
   }
 
-  refs.stateButtons.forEach((button) => {
+  refs.langButtons.forEach((button) => {
     button.addEventListener('click', () => applyLocale(button.dataset.lang));
   });
 
@@ -127,10 +170,16 @@ export function setupUI(onStateSelect) {
 
   window.addEventListener('office-status', (event) => {
     const payload = event.detail || {};
-    const stateLabel = payload.stateLabel || payload.state || 'idle';
-    const detail = payload.detail || '-';
+    const nextState = payload.state || 'idle';
+    const stateLabel = payload.stateLabel || nextState;
+    const detail = payload.detail || state.strings.detailIdle || '-';
+
+    state.currentOfficeState = nextState;
+    state.currentOfficeDetail = detail;
+
     typeStatus(`${stateLabel} · ${detail}`);
-    if (payload.state) setActiveStateButton(payload.state);
+    setActiveStateButton(nextState);
+    renderMeta(state.strings);
   });
 
   renderPalette();

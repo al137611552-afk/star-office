@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Star Office UI Remake - Step 5</title>
+  <title>Star Office UI Remake - Step 6</title>
   <link rel="stylesheet" href="/static/styles/tokens.css">
   <link rel="stylesheet" href="/static/styles/base.css">
   <link rel="stylesheet" href="/static/styles/panels.css">
@@ -57,13 +57,32 @@
       </article>
 
       <article id="meta-panel" class="panel pixel-frame">
-        <div id="meta-title" class="panel-title">像素基线 / 色板</div>
-        <div class="meta-list">
-          <div>1. 主状态按钮样式向源项目收敛，扩展状态退到次级控制</div>
-          <div>2. 左下状态条与场景牌匾统一为同一套状态叙述</div>
-          <div>3. 保留 120ms 切换与 8000ms / 18000ms 气泡节奏</div>
-          <div>4. 下一步可以继续做按钮精确像素切片与更强 1:1 还原</div>
-          <div id="palette-list"></div>
+        <div id="meta-title" class="panel-title">办公室情报卡</div>
+        <div class="meta-card">
+          <div id="meta-kicker" class="meta-kicker">OFFICE INFO CARD</div>
+          <div id="meta-summary" class="meta-summary">把说明面板收成世界内信息卡：显示当前场景、执行重点和固定节奏，而不是继续暴露开发备注。</div>
+          <div class="meta-grid">
+            <div class="meta-item">
+              <div id="meta-label-scene" class="meta-label">当前场景</div>
+              <div id="meta-value-scene" class="meta-value">休息区</div>
+            </div>
+            <div class="meta-item">
+              <div id="meta-label-focus" class="meta-label">执行重点</div>
+              <div id="meta-value-focus" class="meta-value">耳朵竖起来了</div>
+            </div>
+            <div class="meta-item">
+              <div id="meta-label-motion" class="meta-label">动作节奏</div>
+              <div id="meta-value-motion" class="meta-value">120ms linear</div>
+            </div>
+            <div class="meta-item">
+              <div id="meta-label-bubbles" class="meta-label">气泡节奏</div>
+              <div id="meta-value-bubbles" class="meta-value">8s / 18s</div>
+            </div>
+          </div>
+          <div class="meta-spectrum">
+            <div id="meta-label-palette" class="meta-label">办公室色谱</div>
+            <div id="palette-list" class="palette-row"></div>
+          </div>
         </div>
       </article>
     </section>
