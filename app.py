@@ -11,6 +11,21 @@ JOIN_KEYS_FILE = DATA / "join-keys.json"
 
 app = Flask(__name__, static_folder=str(FRONTEND), static_url_path="/static")
 
+MEMOS = {
+    "zh": {
+        "date": "2026-02-26",
+        "memo": "昨晚把底部状态铭牌重新收口。\n右侧说明栏已改成办公室情报卡。\n下一步继续收紧 memo 卡与操作台的成品感。",
+    },
+    "en": {
+        "date": "2026-02-26",
+        "memo": "Last night the bottom status plaque was embedded into the scene.\nThe right notes block became an office info card.\nNext up: tighten the memo card and the control console into a more finished product surface.",
+    },
+    "ja": {
+        "date": "2026-02-26",
+        "memo": "昨夜、下部の状態銘板をシーンに馴染ませました。\n右側の説明欄はオフィス情報カードへ変更済みです。\n次はメモカードと操作台の完成度をさらに詰めます。",
+    },
+}
+
 
 def load_json(path: Path, default):
     if not path.exists():
@@ -78,11 +93,16 @@ def set_state():
 
 @app.get("/yesterday-memo")
 def yesterday_memo():
+    lang = (request.args.get("lang") or "zh").lower()
+    if lang not in MEMOS:
+        lang = "zh"
+    payload = MEMOS[lang]
     return jsonify(
         {
             "success": True,
-            "date": "2026-02-26",
-            "memo": "Step 1 scaffold complete.\nPixel baseline locked.\nPalette extracted from source.",
+            "lang": lang,
+            "date": payload["date"],
+            "memo": payload["memo"],
         }
     )
 

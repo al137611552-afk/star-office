@@ -1,4 +1,4 @@
-import { STRINGS } from '../config/i18n.js';
+import { STRINGS } from '../config/i18n.js?v=step7';
 
 const PALETTE = [
   ['#1a1a2e', 'bg-page'],
@@ -22,7 +22,7 @@ const AREA_KEY_BY_STATE = {
 
 const TYPEWRITER_DELAY = 50;
 
-export function setupUI(onStateSelect) {
+export function setupUI(onStateSelect, onLocaleChange) {
   const state = {
     locale: 'zh',
     strings: STRINGS.zh,
@@ -31,6 +31,8 @@ export function setupUI(onStateSelect) {
     statusTarget: '',
     currentOfficeState: 'idle',
     currentOfficeDetail: STRINGS.zh.detailIdle,
+    currentMemoDate: '2026-02-26',
+    currentMemoBody: '',
   };
 
   const refs = {
@@ -40,6 +42,8 @@ export function setupUI(onStateSelect) {
     officeTitle: document.getElementById('office-title'),
     controlTitle: document.getElementById('control-title'),
     memoTitle: document.getElementById('memo-title'),
+    memoKicker: document.getElementById('memo-kicker'),
+    memoStamp: document.getElementById('memo-stamp'),
     metaTitle: document.getElementById('meta-title'),
     metaKicker: document.getElementById('meta-kicker'),
     metaSummary: document.getElementById('meta-summary'),
@@ -52,6 +56,7 @@ export function setupUI(onStateSelect) {
     metaValueFocus: document.getElementById('meta-value-focus'),
     metaValueMotion: document.getElementById('meta-value-motion'),
     metaValueBubbles: document.getElementById('meta-value-bubbles'),
+    consoleBadge: document.getElementById('console-badge'),
     shellDone: document.getElementById('shell-done'),
     memoBody: document.getElementById('memo-body'),
     memoDate: document.getElementById('memo-date'),
@@ -60,6 +65,7 @@ export function setupUI(onStateSelect) {
     langButtons: [...document.querySelectorAll('[data-lang]')],
     stateTestButtons: [...document.querySelectorAll('[data-state]')],
     statesLabel: document.getElementById('states-label'),
+    statesHint: document.getElementById('states-hint'),
   };
 
   function renderPalette() {
@@ -71,6 +77,13 @@ export function setupUI(onStateSelect) {
   function getAreaLabel(strings, stateName) {
     const key = AREA_KEY_BY_STATE[stateName] || AREA_KEY_BY_STATE.idle;
     return strings[key] || stateName;
+  }
+
+  function renderMemo(strings) {
+    refs.memoKicker.textContent = strings.memoKicker;
+    refs.memoStamp.textContent = strings.memoStamp;
+    refs.memoDate.textContent = state.currentMemoDate;
+    refs.memoBody.textContent = state.currentMemoBody || '';
   }
 
   function renderMeta(strings) {
@@ -90,6 +103,8 @@ export function setupUI(onStateSelect) {
 
   function updateStateTestLabels(strings) {
     if (refs.statesLabel) refs.statesLabel.textContent = strings.statesLabel;
+    if (refs.statesHint) refs.statesHint.textContent = strings.statesHint;
+    if (refs.consoleBadge) refs.consoleBadge.textContent = strings.consoleBadge;
     refs.stateTestButtons.forEach((button) => {
       const key = button.dataset.labelKey;
       if (key && strings[key]) button.textContent = strings[key];
@@ -118,7 +133,7 @@ export function setupUI(onStateSelect) {
     }, TYPEWRITER_DELAY);
   }
 
-  function applyLocale(locale) {
+  function applyLocale(locale, options = {}) {
     const strings = STRINGS[locale] || STRINGS.zh;
     state.locale = locale;
     state.strings = strings;
@@ -135,13 +150,19 @@ export function setupUI(onStateSelect) {
     refs.memoTitle.textContent = strings.memoTitle;
     refs.metaTitle.textContent = strings.metaTitle;
     refs.shellDone.textContent = strings.shellDone;
-    refs.memoBody.textContent = strings.memoBody;
     updateStateTestLabels(strings);
+    renderMemo(strings);
     renderMeta(strings);
 
     refs.langButtons.forEach((button) => {
       button.classList.toggle('is-active', button.dataset.lang === locale);
     });
+
+    window.dispatchEvent(new CustomEvent('office-locale', { detail: { locale } }));
+
+    if (!options.skipNotify && onLocaleChange) {
+      onLocaleChange(locale);
+    }
   }
 
   refs.langButtons.forEach((button) => {
@@ -182,8 +203,7 @@ export function setupUI(onStateSelect) {
     renderMeta(state.strings);
   });
 
-  renderPalette();
-  applyLocale('zh');
+  applyLocale('zh', { skipNotify: true });
   setActiveStateButton('idle');
 
   return {
@@ -191,13 +211,18 @@ export function setupUI(onStateSelect) {
       refs.loadingOverlay.style.display = 'none';
     },
     setMemo(date, memo) {
-      refs.memoDate.textContent = date;
-      refs.memoBody.textContent = memo;
+      state.currentMemoDate = date;
+      state.currentMemoBody = memo;
+      renderMemo(state.strings);
     },
     getStateDetail(stateName) {
       const key = `detail${stateName.charAt(0).toUpperCase()}${stateName.slice(1)}`;
       return state.strings[key] || stateName;
     },
     setActiveStateButton,
+    getLocale() {
+      return state.locale;
+    },
+    applyLocale,
   };
 }

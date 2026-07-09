@@ -1,13 +1,33 @@
-import { fetchStatus, fetchYesterdayMemo, setOfficeState } from './core/api.js';
-import { createGameConfig } from './scene/office-scene.js';
-import { setupUI } from './ui/dom.js';
+import { fetchStatus, fetchYesterdayMemo, setOfficeState } from './core/api.js?v=step7';
+import { createGameConfig } from './scene/office-scene.js?v=step7';
+import { setupUI } from './ui/dom.js?v=step7';
 
 async function main() {
-  const ui = setupUI(async (stateName, detail) => {
-    await setOfficeState(stateName, detail);
-    const status = await fetchStatus();
-    scene.setStatus(status);
-  });
+  let ui;
+  let scene;
+
+  async function refreshMemo(locale) {
+    const memo = await fetchYesterdayMemo(locale);
+    if (memo?.success && ui) {
+      ui.setMemo(memo.date, memo.memo);
+    }
+  }
+
+  ui = setupUI(
+    async (stateName, detail) => {
+      await setOfficeState(stateName, detail);
+      const status = await fetchStatus();
+      scene.setStatus(status);
+    },
+    async (locale) => {
+      try {
+        await refreshMemo(locale);
+      } catch (error) {
+        console.error(error);
+      }
+    }
+  );
+
   const game = new Phaser.Game(createGameConfig());
 
   await new Promise((resolve) => {
@@ -15,15 +35,12 @@ async function main() {
     setTimeout(resolve, 500);
   });
 
-  const scene = game.scene.keys.office;
+  scene = game.scene.keys.office;
 
   const initialStatus = await fetchStatus();
   scene.setStatus(initialStatus);
 
-  const memo = await fetchYesterdayMemo();
-  if (memo?.success) {
-    ui.setMemo(memo.date, memo.memo);
-  }
+  await refreshMemo(ui.getLocale());
 
   ui.hideLoading();
 

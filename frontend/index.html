@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Star Office UI Remake - Step 6</title>
-  <link rel="stylesheet" href="/static/styles/tokens.css">
-  <link rel="stylesheet" href="/static/styles/base.css">
-  <link rel="stylesheet" href="/static/styles/panels.css">
+  <title>Star Office UI Remake - Step 7</title>
+  <link rel="stylesheet" href="/static/styles/tokens.css?v=step7b">
+  <link rel="stylesheet" href="/static/styles/base.css?v=step7b">
+  <link rel="stylesheet" href="/static/styles/panels.css?v=step7b">
 </head>
 <body>
   <div id="floating-tools">
@@ -30,18 +30,32 @@
       <article id="memo-panel" class="panel pixel-frame">
         <div id="memo-title" class="panel-title">昨 日 小 记</div>
         <div class="memo-copy">
-          <div id="memo-date" class="memo-date">2026-02-26</div>
+          <div class="memo-kicker-row">
+            <div id="memo-kicker" class="memo-kicker">CLAWNOTE / LAST NIGHT</div>
+            <div id="memo-date" class="memo-date">2026-02-26</div>
+          </div>
           <div id="memo-body" class="memo-body">当前阶段重点是状态切换与表现联动。下一步继续对齐 100–150ms 节奏、真实动画帧与细化 DOM 面板。</div>
+          <div class="memo-footer">
+            <span id="memo-stamp" class="memo-stamp">内部记录</span>
+          </div>
         </div>
       </article>
 
       <article id="control-panel" class="panel pixel-frame">
         <div id="control-title" class="panel-title">Star 状态</div>
         <div class="panel-copy ui-even-14">
-          <div id="office-title">海辛小龙虾的办公室</div>
-          <div id="shell-done">Step 5：主状态、扩展状态、状态条和场景牌匾已统一到同一套叙述。</div>
+          <div class="console-header">
+            <div>
+              <div id="office-title">海辛小龙虾的办公室</div>
+              <div id="shell-done">Step 5：主状态、扩展状态、状态条和场景牌匾已统一到同一套叙述。</div>
+            </div>
+            <div id="console-badge" class="console-badge">OFFICE CONSOLE</div>
+          </div>
           <div class="state-test-block">
-            <div id="states-label" class="state-test-title">状态测试</div>
+            <div class="state-heading-row">
+              <div id="states-label" class="state-test-title">状态测试</div>
+              <div id="states-hint" class="states-hint">点击主状态按钮切换办公室节奏</div>
+            </div>
             <div class="state-primary-grid">
               <button id="btn-state-idle" class="pixel-button pixel-button--sprite" data-state="idle" data-label-key="stateIdle" data-detail-key="detailIdle">待命</button>
               <button id="btn-state-writing" class="pixel-button pixel-button--sprite" data-state="writing" data-label-key="stateWriting" data-detail-key="detailWriting">工作</button>
@@ -89,6 +103,6 @@
   </main>
 
   <script src="/static/vendor/phaser-3.80.1.min.js"></script>
-  <script type="module" src="/static/src/main.js"></script>
+  <script type="module" src="/static/src/main.js?v=step7b"></script>
 </body>
 </html>

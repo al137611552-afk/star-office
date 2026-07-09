@@ -4,8 +4,8 @@ export async function fetchStatus() {
   return await res.json();
 }
 
-export async function fetchYesterdayMemo() {
-  const res = await fetch('/yesterday-memo');
+export async function fetchYesterdayMemo(locale = 'zh') {
+  const res = await fetch(`/yesterday-memo?lang=${encodeURIComponent(locale)}`);
   if (!res.ok) throw new Error(`memo ${res.status}`);
   return await res.json();
 }

@@ -1,12 +1,13 @@
-import { GAME_HEIGHT, GAME_WIDTH, LAYOUT } from '../config/layout.js';
+import { GAME_HEIGHT, GAME_WIDTH, LAYOUT } from '../config/layout.js?v=step7';
+import { STRINGS } from '../config/i18n.js?v=step7';
 
 const STATES = {
-  idle: { name: '待命', area: 'breakroom' },
-  writing: { name: '整理文档', area: 'writing' },
-  researching: { name: '搜索信息', area: 'researching' },
-  executing: { name: '执行任务', area: 'writing' },
-  syncing: { name: '同步备份', area: 'writing' },
-  error: { name: '出错了', area: 'error' },
+  idle: { labelKey: 'stateIdle', fallback: '待命', area: 'breakroom' },
+  writing: { labelKey: 'stateWriting', fallback: '工作', area: 'writing' },
+  researching: { labelKey: 'stateResearching', fallback: '搜索信息', area: 'researching' },
+  executing: { labelKey: 'stateExecuting', fallback: '执行任务', area: 'writing' },
+  syncing: { labelKey: 'stateSyncing', fallback: '同步', area: 'writing' },
+  error: { labelKey: 'stateError', fallback: '报警', area: 'error' },
 };
 
 const BUBBLE_TEXTS = {
@@ -28,6 +29,7 @@ export class OfficeScene extends Phaser.Scene {
     super('office');
     this.currentState = 'idle';
     this.currentDetail = 'Waiting...';
+    this.locale = 'zh';
     this.lastBubble = 0;
     this.lastCatBubble = 0;
     this.bubble = null;
@@ -138,6 +140,10 @@ export class OfficeScene extends Phaser.Scene {
 
     this.createAmbientTweens();
     this.drawPlaque();
+    window.addEventListener('office-locale', (event) => {
+      this.locale = event.detail?.locale || 'zh';
+      this.updatePlaque({ state: this.currentState, detail: this.currentDetail });
+    });
     this.applyStateVisuals('idle', true);
   }
 
@@ -204,6 +210,16 @@ export class OfficeScene extends Phaser.Scene {
     });
   }
 
+  getLocaleStrings() {
+    return STRINGS[this.locale] || STRINGS.zh;
+  }
+
+  getStateLabel(stateName) {
+    const info = STATES[stateName] || STATES.idle;
+    const strings = this.getLocaleStrings();
+    return strings[info.labelKey] || info.fallback;
+  }
+
   drawPlaque() {
     const { x, y, width, height } = LAYOUT.plaque;
 
@@ -224,7 +240,7 @@ export class OfficeScene extends Phaser.Scene {
     this.add.circle(x - width / 2 + 16, y - 10, 2.5, 0xffd700).setDepth(3001);
     this.add.circle(x + width / 2 - 16, y - 10, 2.5, 0xffd700).setDepth(3001);
 
-    this.plaqueStateText = this.add.text(x, y - 7, '待命', {
+    this.plaqueStateText = this.add.text(x, y - 7, this.getStateLabel('idle'), {
       fontFamily: 'ArkPixelZH, monospace',
       fontSize: '12px',
       color: '#ffd700',
@@ -272,7 +288,7 @@ export class OfficeScene extends Phaser.Scene {
 
   setStatus(state) {
     const nextState = STATES[state.state] ? state.state : 'idle';
-    const payload = { ...state, state: nextState, stateLabel: (STATES[nextState] || STATES.idle).name };
+    const payload = { ...state, state: nextState, stateLabel: this.getStateLabel(nextState) };
     const changed = nextState !== this.currentState;
 
     if (changed) {
@@ -342,10 +358,10 @@ export class OfficeScene extends Phaser.Scene {
   }
 
   updatePlaque(payload) {
-    const info = STATES[payload.state] || STATES.idle;
+    const stateLabel = this.getStateLabel(payload.state);
     const detail = (payload.detail || '').slice(0, 22);
     if (this.plaqueStateText) {
-      this.plaqueStateText.setText(info.name);
+      this.plaqueStateText.setText(stateLabel);
     }
     if (this.plaqueDetailText) {
       this.plaqueDetailText.setText(detail || '耳朵竖起来了');
