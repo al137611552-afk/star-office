@@ -1,4 +1,4 @@
-import { STRINGS } from '../config/i18n.js?v=step8b';
+import { STRINGS, DETAIL_KEY_BY_STATE, localizeStateDetail } from '../config/i18n.js?v=step9b';
 
 const PALETTE = [
   ['#1a1a2e', 'bg-page'],
@@ -87,6 +87,7 @@ export function setupUI(onStateSelect, onLocaleChange) {
   }
 
   function renderMeta(strings) {
+    const localizedDetail = localizeStateDetail(state.locale, state.currentOfficeState, state.currentOfficeDetail);
     refs.metaKicker.textContent = strings.metaKicker;
     refs.metaSummary.textContent = strings.metaSummary;
     refs.metaLabelScene.textContent = strings.metaLabelScene;
@@ -95,7 +96,7 @@ export function setupUI(onStateSelect, onLocaleChange) {
     refs.metaLabelBubbles.textContent = strings.metaLabelBubbles;
     refs.metaLabelPalette.textContent = strings.metaLabelPalette;
     refs.metaValueScene.textContent = getAreaLabel(strings, state.currentOfficeState);
-    refs.metaValueFocus.textContent = state.currentOfficeDetail || strings.detailIdle;
+    refs.metaValueFocus.textContent = localizedDetail || strings.detailIdle;
     refs.metaValueMotion.textContent = strings.metaMotionValue;
     refs.metaValueBubbles.textContent = strings.metaBubbleValue;
     renderPalette();
@@ -203,10 +204,10 @@ export function setupUI(onStateSelect, onLocaleChange) {
     const payload = event.detail || {};
     const nextState = payload.state || 'idle';
     const stateLabel = payload.stateLabel || nextState;
-    const detail = payload.detail || state.strings.detailIdle || '-';
+    const detail = localizeStateDetail(state.locale, nextState, payload.detail || '');
 
     state.currentOfficeState = nextState;
-    state.currentOfficeDetail = detail;
+    state.currentOfficeDetail = payload.detail || ''; 
 
     typeStatus(formatStatusLine(stateLabel, detail));
     setActiveStateButton(nextState);
@@ -226,7 +227,7 @@ export function setupUI(onStateSelect, onLocaleChange) {
       renderMemo(state.strings);
     },
     getStateDetail(stateName) {
-      const key = `detail${stateName.charAt(0).toUpperCase()}${stateName.slice(1)}`;
+      const key = DETAIL_KEY_BY_STATE[stateName] || `detail${stateName.charAt(0).toUpperCase()}${stateName.slice(1)}`;
       return state.strings[key] || stateName;
     },
     setActiveStateButton,

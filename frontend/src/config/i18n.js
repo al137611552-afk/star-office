@@ -8,7 +8,7 @@ export const STRINGS = {
     memoStamp: '内部记录',
     metaTitle: '办公室情报卡',
     metaKicker: 'OFFICE INFO CARD',
-    metaSummary: '右侧信息卡已经稳定；这一轮重点处理长状态文案的承载，并统一底部三块面板的留白节奏。',
+    metaSummary: '这一轮把状态详情、场景气泡和底部信息统一到当前语言，同时继续收紧按钮与铭牌的成品感。',
     metaLabelScene: '当前场景',
     metaLabelFocus: '执行重点',
     metaLabelMotion: '动作节奏',
@@ -23,7 +23,7 @@ export const STRINGS = {
     areaSyncing: '同步节点',
     areaError: '异常区',
     consoleBadge: 'OFFICE CONSOLE',
-    shellDone: 'Step 8 收尾长文案承载：场景铭牌与底部状态条对英文状态更稳，底部三块面板的节奏也继续收紧。',
+    shellDone: 'Step 9 完成三语联动收尾：状态详情与场景气泡会跟随语言切换，按钮与场景铭牌也再压了一轮细节。',
     statesLabel: '状态面板',
     statesHint: '点击主状态按钮切换办公室节奏',
     stateIdle: '待命',
@@ -48,7 +48,7 @@ export const STRINGS = {
     memoStamp: 'Internal Record',
     metaTitle: 'Office Info Card',
     metaKicker: 'OFFICE INFO CARD',
-    metaSummary: 'The right card is stable now; this pass focuses on longer state copy and tighter spacing rhythm across the three bottom panels.',
+    metaSummary: 'This pass aligns state detail, scene bubbles, and bottom info to the active locale while tightening button and plaque presentation one more step.',
     metaLabelScene: 'Current Scene',
     metaLabelFocus: 'Focus',
     metaLabelMotion: 'Motion',
@@ -63,7 +63,7 @@ export const STRINGS = {
     areaSyncing: 'Sync Node',
     areaError: 'Bug Corner',
     consoleBadge: 'OFFICE CONSOLE',
-    shellDone: 'Step 8 tightens long-copy handling: the stage plaque and bottom status line now hold English state text more gracefully, with another spacing pass across the bottom panels.',
+    shellDone: 'Step 9 finishes the locale sync pass: state detail and scene bubbles now follow language switching, with another polish pass on buttons and the stage plaque.',
     statesLabel: 'State Panel',
     statesHint: 'Tap a primary state to shift the office rhythm',
     stateIdle: 'Idle',
@@ -88,7 +88,7 @@ export const STRINGS = {
     memoStamp: '内部記録',
     metaTitle: 'オフィス情報カード',
     metaKicker: 'OFFICE INFO CARD',
-    metaSummary: '右側カードは安定したので、今回は長い状態文言の収まりと下部3パネルの余白リズムを整えます。',
+    metaSummary: '今回は状態詳細・場面の吹き出し・下部情報を現在の言語にそろえつつ、ボタンと銘板ももう一段仕上げます。',
     metaLabelScene: '現在の場面',
     metaLabelFocus: '重点',
     metaLabelMotion: '動作リズム',
@@ -103,7 +103,7 @@ export const STRINGS = {
     areaSyncing: '同期ノード',
     areaError: '異常エリア',
     consoleBadge: 'OFFICE CONSOLE',
-    shellDone: 'Step 8 では長い文言の収まりを調整し、場面銘板と下部状態欄、3つの下部パネルの余白をさらに整えます。',
+    shellDone: 'Step 9 では状態詳細と場面の吹き出しを言語切替に追従させ、ボタンと場面銘板もさらに磨き込みました。',
     statesLabel: '状態パネル',
     statesHint: '主状態ボタンでオフィスのリズムを切り替えます',
     stateIdle: '待機',
@@ -120,3 +120,27 @@ export const STRINGS = {
     detailError: '問題を検知、調査中',
   },
 };
+
+export const DETAIL_KEY_BY_STATE = {
+  idle: 'detailIdle',
+  writing: 'detailWriting',
+  researching: 'detailResearching',
+  executing: 'detailExecuting',
+  syncing: 'detailSyncing',
+  error: 'detailError',
+};
+
+export function localizeStateDetail(locale, stateName, rawDetail = '') {
+  const detailKey = DETAIL_KEY_BY_STATE[stateName];
+  if (!detailKey) return rawDetail || '';
+
+  const strings = STRINGS[locale] || STRINGS.zh;
+  const localized = strings[detailKey] || rawDetail || '';
+  if (!rawDetail) return localized;
+
+  const knownVariants = Object.values(STRINGS)
+    .map((bundle) => bundle[detailKey])
+    .filter(Boolean);
+
+  return knownVariants.includes(rawDetail) ? localized : rawDetail;
+}

@@ -1,5 +1,5 @@
-import { GAME_HEIGHT, GAME_WIDTH, LAYOUT } from '../config/layout.js?v=step8b';
-import { STRINGS } from '../config/i18n.js?v=step8b';
+import { GAME_HEIGHT, GAME_WIDTH, LAYOUT } from '../config/layout.js?v=step9b';
+import { STRINGS, localizeStateDetail } from '../config/i18n.js?v=step9b';
 
 const STATES = {
   idle: { labelKey: 'stateIdle', fallback: '待命', area: 'breakroom' },
@@ -11,13 +11,33 @@ const STATES = {
 };
 
 const BUBBLE_TEXTS = {
-  idle: ['待命中：耳朵竖起来了', '我在这儿，随时可以开工'],
-  writing: ['进入专注模式：勿扰', '先把关键路径跑通', '把复杂变简单'],
-  researching: ['先搜集上下文', '让我再查一遍资料', '把线索串起来'],
-  executing: ['开始落地执行', '把计划变成结果', '现在进入实操阶段'],
-  syncing: ['正在同步备份', '别急，我先对齐版本', '把变更安全落盘'],
-  error: ['这里有异常', '先别慌，我在排查', '发现 bug，马上处理'],
-  cat: ['喵~', '咕噜咕噜…'],
+  zh: {
+    idle: ['待命中：耳朵竖起来了', '我在这儿，随时可以开工'],
+    writing: ['进入专注模式：勿扰', '先把关键路径跑通', '把复杂变简单'],
+    researching: ['先搜集上下文', '让我再查一遍资料', '把线索串起来'],
+    executing: ['开始落地执行', '把计划变成结果', '现在进入实操阶段'],
+    syncing: ['正在同步备份', '别急，我先对齐版本', '把变更安全落盘'],
+    error: ['这里有异常', '先别慌，我在排查', '发现 bug，马上处理'],
+    cat: ['咕噜咕噜…', '喵呜~'],
+  },
+  en: {
+    idle: ['Standing by with ears up', 'Ready when you are'],
+    writing: ['Focus mode on', 'Clear the critical path first', 'Make the complex feel simple'],
+    researching: ['Collect context first', 'Let me check one more source', 'Connecting the clues'],
+    executing: ['Putting the plan into action', 'Turning the plan into results', 'Execution mode engaged'],
+    syncing: ['Syncing a safe backup', 'Aligning versions first', 'Saving changes safely'],
+    error: ['Something looks off here', 'Give me a second to debug', 'Bug spotted, fixing it now'],
+    cat: ['purr...', 'mrrp~'],
+  },
+  ja: {
+    idle: ['待機中、耳を立てています', 'いつでも始められます'],
+    writing: ['集中モードに入ります', 'まず重要経路を通します', '複雑さを整理します'],
+    researching: ['先に文脈を集めます', 'もう一度資料を確認します', '手がかりをつなげます'],
+    executing: ['実行に着手します', '計画を結果に変えます', 'いま実作業フェーズです'],
+    syncing: ['安全に同期中です', '先にバージョンをそろえます', '変更を安全に保存します'],
+    error: ['異常を見つけました', '少し待ってください、調査中です', 'バグを確認、すぐ対応します'],
+    cat: ['ごろごろ…', 'にゃー~'],
+  },
 };
 
 const BUBBLE_INTERVAL = 8000;
@@ -227,7 +247,7 @@ export class OfficeScene extends Phaser.Scene {
   }
 
   formatPlaqueDetail(detail) {
-    const text = (detail || '').trim();
+    const text = localizeStateDetail(this.locale, this.currentState, (detail || '').trim());
     if (!text) return this.locale === 'en' ? 'Ears up and waiting' : this.locale === 'ja' ? '耳を立てて待機中' : '耳朵竖起来了';
     if (this.locale !== 'en' || text.length <= 26) return text.slice(0, 28);
 
@@ -285,7 +305,7 @@ export class OfficeScene extends Phaser.Scene {
       align: 'center',
       lineSpacing: 2,
     }).setOrigin(0.5).setDepth(3002);
-    this.plaqueDetailText.setFixedSize(width - 42, 26);
+    this.plaqueDetailText.setFixedSize(width - 28, 26);
   }
 
   update(time) {
@@ -387,7 +407,8 @@ export class OfficeScene extends Phaser.Scene {
 
   updatePlaque(payload) {
     const stateLabel = this.getStateLabel(payload.state);
-    const detail = this.formatPlaqueDetail(payload.detail || '');
+    const localizedDetail = localizeStateDetail(this.locale, payload.state, payload.detail || '');
+    const detail = this.formatPlaqueDetail(localizedDetail);
     const fontFamily = this.getLocaleFontFamily();
     if (this.plaqueStateText) {
       this.plaqueStateText.setFontFamily(fontFamily);
@@ -395,7 +416,7 @@ export class OfficeScene extends Phaser.Scene {
     }
     if (this.plaqueDetailText) {
       this.plaqueDetailText.setFontFamily(fontFamily);
-      this.plaqueDetailText.setFontSize(this.locale === 'en' ? '9px' : '10px');
+      this.plaqueDetailText.setFontSize(this.locale === 'en' ? '8px' : '10px');
       this.plaqueDetailText.setText(detail);
     }
   }
@@ -413,6 +434,43 @@ export class OfficeScene extends Phaser.Scene {
     return { x: this.star.x, y: this.star.y };
   }
 
+  getBubbleTexts(kind) {
+    return BUBBLE_TEXTS[this.locale]?.[kind] || BUBBLE_TEXTS.zh[kind] || [];
+  }
+
+  createSpeechBubble({ x, y, text, textColor, bgColor, strokeColor, depth, ttl, fontSize }) {
+    const maxWidth = this.locale === 'en' ? 208 : 180;
+    const bg = this.add.rectangle(x, y, 10, 10, bgColor, 0.95);
+    bg.setStrokeStyle(2, strokeColor);
+
+    const txt = this.add.text(x, y, text, {
+      fontFamily: this.getLocaleFontFamily(),
+      fontSize,
+      color: textColor,
+      align: 'center',
+      wordWrap: { width: maxWidth, useAdvancedWrap: true },
+      lineSpacing: 2,
+    }).setOrigin(0.5);
+
+    bg.setSize(Math.max(76, txt.width + 18), Math.max(24, txt.height + 14));
+
+    const bubbleHalfWidth = bg.width / 2;
+    const clampedX = Phaser.Math.Clamp(x, bubbleHalfWidth + 6, GAME_WIDTH - bubbleHalfWidth - 6);
+    bg.setX(clampedX);
+    txt.setX(clampedX);
+
+    const bubble = this.add.container(0, 0, [bg, txt]);
+    bubble.setDepth(depth);
+
+    this.time.delayedCall(ttl, () => {
+      if (bubble.active) bubble.destroy();
+      if (this.bubble === bubble) this.bubble = null;
+      if (this.catBubble === bubble) this.catBubble = null;
+    });
+
+    return bubble;
+  }
+
   showBubble() {
     if (this.bubble) {
       this.bubble.destroy();
@@ -420,25 +478,20 @@ export class OfficeScene extends Phaser.Scene {
     }
     if (this.currentState === 'idle') return;
 
-    const texts = BUBBLE_TEXTS[this.currentState] || BUBBLE_TEXTS.idle;
+    const texts = this.getBubbleTexts(this.currentState);
     const text = texts[Math.floor(Math.random() * texts.length)];
     const { x, y } = this.getBubbleAnchor();
     const bubbleY = y - 70;
-    const bg = this.add.rectangle(x, bubbleY, text.length * 10 + 20, 28, 0xffffff, 0.95);
-    bg.setStrokeStyle(2, 0x000000);
-    const txt = this.add.text(x, bubbleY, text, {
-      fontFamily: 'ArkPixelZH, monospace',
-      fontSize: '12px',
-      color: '#000000',
-      align: 'center',
-    }).setOrigin(0.5);
-    this.bubble = this.add.container(0, 0, [bg, txt]);
-    this.bubble.setDepth(1200);
-    this.time.delayedCall(3000, () => {
-      if (this.bubble) {
-        this.bubble.destroy();
-        this.bubble = null;
-      }
+    this.bubble = this.createSpeechBubble({
+      x,
+      y: bubbleY,
+      text,
+      textColor: '#000000',
+      bgColor: 0xffffff,
+      strokeColor: 0x000000,
+      depth: 1200,
+      ttl: 3000,
+      fontSize: this.locale === 'en' ? '10px' : '12px',
     });
   }
 
@@ -448,24 +501,20 @@ export class OfficeScene extends Phaser.Scene {
       this.catBubble.destroy();
       this.catBubble = null;
     }
-    const text = BUBBLE_TEXTS.cat[Math.floor(Math.random() * BUBBLE_TEXTS.cat.length)];
+    const catTexts = this.getBubbleTexts('cat');
+    const text = catTexts[Math.floor(Math.random() * catTexts.length)];
     const anchorX = this.cat.x;
     const anchorY = this.cat.y - 60;
-    const bg = this.add.rectangle(anchorX, anchorY, text.length * 10 + 20, 24, 0xfffbeb, 0.95);
-    bg.setStrokeStyle(2, 0xd4a574);
-    const txt = this.add.text(anchorX, anchorY, text, {
-      fontFamily: 'ArkPixelZH, monospace',
-      fontSize: '11px',
-      color: '#8b6914',
-      align: 'center',
-    }).setOrigin(0.5);
-    this.catBubble = this.add.container(0, 0, [bg, txt]);
-    this.catBubble.setDepth(2100);
-    this.time.delayedCall(4000, () => {
-      if (this.catBubble) {
-        this.catBubble.destroy();
-        this.catBubble = null;
-      }
+    this.catBubble = this.createSpeechBubble({
+      x: anchorX,
+      y: anchorY,
+      text,
+      textColor: '#8b6914',
+      bgColor: 0xfffbeb,
+      strokeColor: 0xd4a574,
+      depth: 2100,
+      ttl: 4000,
+      fontSize: this.locale === 'en' ? '10px' : '11px',
     });
   }
 }
