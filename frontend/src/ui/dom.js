@@ -1,4 +1,4 @@
-import { STRINGS, DETAIL_KEY_BY_STATE, localizeStateDetail } from '../config/i18n.js?v=step9b';
+import { STRINGS, DETAIL_KEY_BY_STATE, localizeStateDetail } from '../config/i18n.js?v=step10a';
 
 const PALETTE = [
   ['#1a1a2e', 'bg-page'],

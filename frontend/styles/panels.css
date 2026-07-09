@@ -98,14 +98,18 @@
 
 #office-title {
   color: #f6e7af;
+  font-size: 13px;
+  line-height: 16px;
 }
 
+
 #shell-done {
-  color: var(--color-panel-muted);
-  font-size: 12px;
-  line-height: 16px;
-  max-width: 264px;
+  color: #b3bfd0;
+  font-size: 11px;
+  line-height: 15px;
+  max-width: 248px;
 }
+
 
 .console-header {
   display: flex;
@@ -115,8 +119,8 @@
 }
 
 .console-badge {
-  min-width: 92px;
-  padding: 4px 6px;
+  min-width: 88px;
+  padding: 3px 6px;
   background: rgba(120, 163, 64, 0.16);
   border: 1px solid rgba(143, 190, 74, 0.42);
   color: #d5ebb1;
@@ -148,11 +152,12 @@
 }
 
 .states-hint {
-  color: #93a4bb;
-  font-size: 10px;
-  line-height: 12px;
+  color: rgba(147, 164, 187, 0.72);
+  font-size: 9px;
+  line-height: 11px;
   text-align: right;
 }
+
 
 .state-primary-grid {
   display: grid;
@@ -388,11 +393,12 @@
 }
 
 .meta-summary {
-  min-height: 56px;
-  color: #f3f4f6;
-  font-size: 12px;
-  line-height: 16px;
+  min-height: 40px;
+  color: #d7dee8;
+  font-size: 11px;
+  line-height: 15px;
 }
+
 
 .meta-grid {
   display: grid;
@@ -417,11 +423,12 @@
 }
 
 .meta-value {
-  margin-top: 6px;
+  margin-top: 5px;
   color: #f6e7af;
-  font-size: 14px;
-  line-height: 18px;
+  font-size: 13px;
+  line-height: 17px;
 }
+
 
 .meta-spectrum {
   display: grid;

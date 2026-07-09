@@ -1,5 +1,5 @@
-import { GAME_HEIGHT, GAME_WIDTH, LAYOUT } from '../config/layout.js?v=step9b';
-import { STRINGS, localizeStateDetail } from '../config/i18n.js?v=step9b';
+import { GAME_HEIGHT, GAME_WIDTH, LAYOUT } from '../config/layout.js?v=step10a';
+import { STRINGS, localizeStateDetail } from '../config/i18n.js?v=step10a';
 
 const STATES = {
   idle: { labelKey: 'stateIdle', fallback: '待命', area: 'breakroom' },
