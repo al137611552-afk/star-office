@@ -10,11 +10,11 @@ export async function fetchYesterdayMemo(locale = 'zh') {
   return await res.json();
 }
 
-export async function setOfficeState(state, detail) {
+export async function setOfficeState(state, detail, detail_i18n = null) {
   const res = await fetch('/set_state', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ state, detail }),
+    body: JSON.stringify({ state, detail, detail_i18n }),
   });
   if (!res.ok) throw new Error(`set_state ${res.status}`);
   return await res.json();

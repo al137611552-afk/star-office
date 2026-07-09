@@ -1,5 +1,5 @@
-import { GAME_HEIGHT, GAME_WIDTH, LAYOUT } from '../config/layout.js?v=step10a';
-import { STRINGS, localizeStateDetail } from '../config/i18n.js?v=step10a';
+import { GAME_HEIGHT, GAME_WIDTH, LAYOUT } from '../config/layout.js?v=step11a';
+import { STRINGS, resolveOfficeDetail } from '../config/i18n.js?v=step11a';
 
 const STATES = {
   idle: { labelKey: 'stateIdle', fallback: '待命', area: 'breakroom' },
@@ -162,7 +162,7 @@ export class OfficeScene extends Phaser.Scene {
     this.drawPlaque();
     window.addEventListener('office-locale', (event) => {
       this.locale = event.detail?.locale || 'zh';
-      this.updatePlaque({ state: this.currentState, detail: this.currentDetail });
+      this.updatePlaque({ state: this.currentState, detail: this.currentDetail, detail_i18n: this.currentDetailI18n });
     });
     this.applyStateVisuals('idle', true);
   }
@@ -247,7 +247,7 @@ export class OfficeScene extends Phaser.Scene {
   }
 
   formatPlaqueDetail(detail) {
-    const text = localizeStateDetail(this.locale, this.currentState, (detail || '').trim());
+    const text = (detail || '').trim();
     if (!text) return this.locale === 'en' ? 'Ears up and waiting' : this.locale === 'ja' ? '耳を立てて待機中' : '耳朵竖起来了';
     if (this.locale !== 'en' || text.length <= 26) return text.slice(0, 28);
 
@@ -355,6 +355,7 @@ export class OfficeScene extends Phaser.Scene {
 
     this.currentState = nextState;
     this.currentDetail = payload.detail || '';
+    this.currentDetailI18n = payload.detail_i18n || null;
     this.updatePlaque(payload);
     window.dispatchEvent(new CustomEvent('office-status', { detail: payload }));
   }
@@ -407,7 +408,7 @@ export class OfficeScene extends Phaser.Scene {
 
   updatePlaque(payload) {
     const stateLabel = this.getStateLabel(payload.state);
-    const localizedDetail = localizeStateDetail(this.locale, payload.state, payload.detail || '');
+    const localizedDetail = resolveOfficeDetail(this.locale, payload.state, payload);
     const detail = this.formatPlaqueDetail(localizedDetail);
     const fontFamily = this.getLocaleFontFamily();
     if (this.plaqueStateText) {

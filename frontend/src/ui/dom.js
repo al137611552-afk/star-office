@@ -1,4 +1,4 @@
-import { STRINGS, DETAIL_KEY_BY_STATE, localizeStateDetail } from '../config/i18n.js?v=step10a';
+import { STRINGS, DETAIL_KEY_BY_STATE, resolveOfficeDetail } from '../config/i18n.js?v=step11a';
 
 const PALETTE = [
   ['#1a1a2e', 'bg-page'],
@@ -31,6 +31,7 @@ export function setupUI(onStateSelect, onLocaleChange) {
     statusTarget: '',
     currentOfficeState: 'idle',
     currentOfficeDetail: STRINGS.zh.detailIdle,
+    currentOfficeDetailI18n: null,
     currentMemoDate: '2026-02-26',
     currentMemoBody: '',
   };
@@ -87,7 +88,10 @@ export function setupUI(onStateSelect, onLocaleChange) {
   }
 
   function renderMeta(strings) {
-    const localizedDetail = localizeStateDetail(state.locale, state.currentOfficeState, state.currentOfficeDetail);
+    const localizedDetail = resolveOfficeDetail(state.locale, state.currentOfficeState, {
+      detail: state.currentOfficeDetail,
+      detail_i18n: state.currentOfficeDetailI18n,
+    });
     refs.metaKicker.textContent = strings.metaKicker;
     refs.metaSummary.textContent = strings.metaSummary;
     refs.metaLabelScene.textContent = strings.metaLabelScene;
@@ -185,7 +189,10 @@ export function setupUI(onStateSelect, onLocaleChange) {
       const stateName = button.dataset.state;
       const detailKey = button.dataset.detailKey;
       const detail = state.strings[detailKey] || stateName;
-      if (onStateSelect) onStateSelect(stateName, detail);
+      const detailI18n = Object.fromEntries(
+        Object.entries(STRINGS).map(([locale, bundle]) => [locale, bundle[detailKey] || detail])
+      );
+      if (onStateSelect) onStateSelect(stateName, detail, detailI18n);
       setActiveStateButton(stateName);
     });
   });
@@ -204,10 +211,11 @@ export function setupUI(onStateSelect, onLocaleChange) {
     const payload = event.detail || {};
     const nextState = payload.state || 'idle';
     const stateLabel = payload.stateLabel || nextState;
-    const detail = localizeStateDetail(state.locale, nextState, payload.detail || '');
+    const detail = resolveOfficeDetail(state.locale, nextState, payload);
 
     state.currentOfficeState = nextState;
-    state.currentOfficeDetail = payload.detail || ''; 
+    state.currentOfficeDetail = payload.detail || '';
+    state.currentOfficeDetailI18n = payload.detail_i18n || null;
 
     typeStatus(formatStatusLine(stateLabel, detail));
     setActiveStateButton(nextState);

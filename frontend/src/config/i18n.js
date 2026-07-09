@@ -8,7 +8,7 @@ export const STRINGS = {
     memoStamp: '内部记录',
     metaTitle: '办公室情报卡',
     metaKicker: 'OFFICE INFO CARD',
-    metaSummary: '状态详情、场景气泡与底部信息现已统一到当前语言。',
+    metaSummary: '现在会优先显示真实开发状态，并在手动覆盖与自动检测之间切换。',
     metaLabelScene: '当前场景',
     metaLabelFocus: '执行重点',
     metaLabelMotion: '动作节奏',
@@ -23,7 +23,7 @@ export const STRINGS = {
     areaSyncing: '同步节点',
     areaError: '异常区',
     consoleBadge: 'OFFICE CONSOLE',
-    shellDone: 'Step 10 最终收口：语言联动稳定，按钮与铭牌完成最后一轮压缩。',
+    shellDone: 'Step 11：接入真实开发状态桥接，页面现在会自动读取当前开发活动。',
     statesLabel: '状态面板',
     statesHint: '点击主状态按钮切换办公室节奏',
     stateIdle: '待命',
@@ -48,7 +48,7 @@ export const STRINGS = {
     memoStamp: 'Internal Record',
     metaTitle: 'Office Info Card',
     metaKicker: 'OFFICE INFO CARD',
-    metaSummary: 'State detail, scene bubbles, and bottom info are now aligned to the active locale.',
+    metaSummary: 'The page now prefers live development status and can switch between manual override and auto-detection.',
     metaLabelScene: 'Current Scene',
     metaLabelFocus: 'Focus',
     metaLabelMotion: 'Motion',
@@ -63,7 +63,7 @@ export const STRINGS = {
     areaSyncing: 'Sync Node',
     areaError: 'Bug Corner',
     consoleBadge: 'OFFICE CONSOLE',
-    shellDone: 'Step 10 final pass: locale sync is stable, with one last compression pass on buttons and the stage plaque.',
+    shellDone: 'Step 11: live development status bridge is connected, and the page now reads current activity automatically.',
     statesLabel: 'State Panel',
     statesHint: 'Tap a primary state to shift the office rhythm',
     stateIdle: 'Idle',
@@ -88,7 +88,7 @@ export const STRINGS = {
     memoStamp: '内部記録',
     metaTitle: 'オフィス情報カード',
     metaKicker: 'OFFICE INFO CARD',
-    metaSummary: '状態詳細・場面の吹き出し・下部情報は現在の言語にそろいました。',
+    metaSummary: 'ページは実際の開発状態を優先表示し、手動上書きと自動検出を切り替えられます。',
     metaLabelScene: '現在の場面',
     metaLabelFocus: '重点',
     metaLabelMotion: '動作リズム',
@@ -103,7 +103,7 @@ export const STRINGS = {
     areaSyncing: '同期ノード',
     areaError: '異常エリア',
     consoleBadge: 'OFFICE CONSOLE',
-    shellDone: 'Step 10 最終仕上げ：言語連動は安定し、ボタンと銘板も最後に引き締めました。',
+    shellDone: 'Step 11: 実際の開発状態ブリッジを接続し、現在の作業を自動で読み取れるようにしました。',
     statesLabel: '状態パネル',
     statesHint: '主状態ボタンでオフィスのリズムを切り替えます',
     stateIdle: '待機',
@@ -143,4 +143,10 @@ export function localizeStateDetail(locale, stateName, rawDetail = '') {
     .filter(Boolean);
 
   return knownVariants.includes(rawDetail) ? localized : rawDetail;
+}
+
+export function resolveOfficeDetail(locale, stateName, payload = {}) {
+  const translated = payload?.detail_i18n?.[locale];
+  if (translated) return translated;
+  return localizeStateDetail(locale, stateName, payload?.detail || '');
 }
