@@ -1,6 +1,6 @@
-import { fetchStatus, fetchYesterdayMemo, setOfficeState } from './core/api.js?v=step7';
-import { createGameConfig } from './scene/office-scene.js?v=step7';
-import { setupUI } from './ui/dom.js?v=step7';
+import { fetchStatus, fetchYesterdayMemo, setOfficeState } from './core/api.js?v=step8b';
+import { createGameConfig } from './scene/office-scene.js?v=step8b';
+import { setupUI } from './ui/dom.js?v=step8b';
 
 async function main() {
   let ui;

@@ -1,4 +1,4 @@
-import { STRINGS } from '../config/i18n.js?v=step7';
+import { STRINGS } from '../config/i18n.js?v=step8b';
 
 const PALETTE = [
   ['#1a1a2e', 'bg-page'],
@@ -111,6 +111,16 @@ export function setupUI(onStateSelect, onLocaleChange) {
     });
   }
 
+  function formatStatusLine(stateLabel, detail) {
+    const base = `${stateLabel} · ${detail}`;
+    if (state.locale !== 'en' || base.length <= 34) return base;
+    const splitIndex = detail.lastIndexOf(' ', 22);
+    if (splitIndex > 6) {
+      return `${stateLabel} · ${detail.slice(0, splitIndex)}\n${detail.slice(splitIndex + 1)}`;
+    }
+    return base;
+  }
+
   function typeStatus(nextText) {
     if (state.statusTarget === nextText && refs.statusLine.textContent === nextText) return;
     if (state.statusTarget === nextText && state.statusTimer) return;
@@ -198,7 +208,7 @@ export function setupUI(onStateSelect, onLocaleChange) {
     state.currentOfficeState = nextState;
     state.currentOfficeDetail = detail;
 
-    typeStatus(`${stateLabel} · ${detail}`);
+    typeStatus(formatStatusLine(stateLabel, detail));
     setActiveStateButton(nextState);
     renderMeta(state.strings);
   });

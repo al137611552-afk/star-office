@@ -1,5 +1,5 @@
-import { GAME_HEIGHT, GAME_WIDTH, LAYOUT } from '../config/layout.js?v=step7';
-import { STRINGS } from '../config/i18n.js?v=step7';
+import { GAME_HEIGHT, GAME_WIDTH, LAYOUT } from '../config/layout.js?v=step8b';
+import { STRINGS } from '../config/i18n.js?v=step8b';
 
 const STATES = {
   idle: { labelKey: 'stateIdle', fallback: '待命', area: 'breakroom' },
@@ -220,6 +220,32 @@ export class OfficeScene extends Phaser.Scene {
     return strings[info.labelKey] || info.fallback;
   }
 
+  getLocaleFontFamily() {
+    if (this.locale === 'en') return 'ArkPixelLatin, monospace';
+    if (this.locale === 'ja') return 'ArkPixelJA, monospace';
+    return 'ArkPixelZH, monospace';
+  }
+
+  formatPlaqueDetail(detail) {
+    const text = (detail || '').trim();
+    if (!text) return this.locale === 'en' ? 'Ears up and waiting' : this.locale === 'ja' ? '耳を立てて待機中' : '耳朵竖起来了';
+    if (this.locale !== 'en' || text.length <= 26) return text.slice(0, 28);
+
+    const compact = text
+      .replace(/\bthe\b\s+/gi, '')
+      .replace(/\bto\b\s+/gi, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+
+    if (compact.length <= 18) return compact;
+    const words = compact.split(' ');
+    const tailSummary = words.slice(-3).join(' ');
+    if (tailSummary.length <= 20) return tailSummary;
+    const headSummary = words.slice(0, 3).join(' ');
+    if (headSummary.length <= 20) return headSummary;
+    return compact.slice(0, 20);
+  }
+
   drawPlaque() {
     const { x, y, width, height } = LAYOUT.plaque;
 
@@ -240,8 +266,8 @@ export class OfficeScene extends Phaser.Scene {
     this.add.circle(x - width / 2 + 16, y - 10, 2.5, 0xffd700).setDepth(3001);
     this.add.circle(x + width / 2 - 16, y - 10, 2.5, 0xffd700).setDepth(3001);
 
-    this.plaqueStateText = this.add.text(x, y - 7, this.getStateLabel('idle'), {
-      fontFamily: 'ArkPixelZH, monospace',
+    this.plaqueStateText = this.add.text(x, y - 11, this.getStateLabel('idle'), {
+      fontFamily: this.getLocaleFontFamily(),
       fontSize: '12px',
       color: '#ffd700',
       stroke: '#000000',
@@ -250,14 +276,16 @@ export class OfficeScene extends Phaser.Scene {
       align: 'center',
     }).setOrigin(0.5).setDepth(3002);
 
-    this.plaqueDetailText = this.add.text(x, y + 9, '耳朵竖起来了', {
-      fontFamily: 'ArkPixelZH, monospace',
-      fontSize: '11px',
+    this.plaqueDetailText = this.add.text(x, y + 10, this.formatPlaqueDetail('耳朵竖起来了'), {
+      fontFamily: this.getLocaleFontFamily(),
+      fontSize: '10px',
       color: '#f4e7c1',
       stroke: '#000000',
       strokeThickness: 2,
       align: 'center',
+      lineSpacing: 2,
     }).setOrigin(0.5).setDepth(3002);
+    this.plaqueDetailText.setFixedSize(width - 42, 26);
   }
 
   update(time) {
@@ -359,12 +387,16 @@ export class OfficeScene extends Phaser.Scene {
 
   updatePlaque(payload) {
     const stateLabel = this.getStateLabel(payload.state);
-    const detail = (payload.detail || '').slice(0, 22);
+    const detail = this.formatPlaqueDetail(payload.detail || '');
+    const fontFamily = this.getLocaleFontFamily();
     if (this.plaqueStateText) {
+      this.plaqueStateText.setFontFamily(fontFamily);
       this.plaqueStateText.setText(stateLabel);
     }
     if (this.plaqueDetailText) {
-      this.plaqueDetailText.setText(detail || '耳朵竖起来了');
+      this.plaqueDetailText.setFontFamily(fontFamily);
+      this.plaqueDetailText.setFontSize(this.locale === 'en' ? '9px' : '10px');
+      this.plaqueDetailText.setText(detail);
     }
   }
 
