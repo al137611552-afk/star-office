@@ -132,7 +132,7 @@
 
 .state-test-block {
   display: grid;
-  gap: 10px;
+  gap: 8px;
   margin-top: 4px;
   padding-top: 10px;
   border-top: 1px solid rgba(255, 255, 255, 0.06);
@@ -221,6 +221,20 @@
   padding-top: 4px;
   padding-bottom: 0;
   filter: brightness(0.98);
+}
+
+body[data-observer-mode='remote'] .pixel-button[data-state] {
+  cursor: not-allowed;
+  opacity: 0.48;
+  filter: grayscale(0.35) saturate(0.55);
+}
+
+body[data-observer-mode='remote'] .pixel-button[data-state]:hover {
+  filter: grayscale(0.35) saturate(0.55);
+}
+
+body[data-observer-mode='remote'] .states-hint {
+  color: #9ab8e8;
 }
 
 .pixel-button--secondary {

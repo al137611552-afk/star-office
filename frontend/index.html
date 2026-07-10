@@ -3,10 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Star Office UI Remake - Step 14</title>
-  <link rel="stylesheet" href="/static/styles/tokens.css?v=step14b">
-  <link rel="stylesheet" href="/static/styles/base.css?v=step14b">
-  <link rel="stylesheet" href="/static/styles/panels.css?v=step14b">
+  <meta name="star-office-api-base" content="http://43.131.249.151/star-office-api">
+  <title>Star Office UI Remake - Step 15</title>
+  <link rel="stylesheet" href="/static/styles/tokens.css?v=step15b">
+  <link rel="stylesheet" href="/static/styles/base.css?v=step15b">
+  <link rel="stylesheet" href="/static/styles/panels.css?v=step15b">
 </head>
 <body>
   <div id="floating-tools">
@@ -34,7 +35,7 @@
             <div id="memo-kicker" class="memo-kicker">CLAWNOTE / LAST NIGHT</div>
             <div id="memo-date" class="memo-date">2026-02-26</div>
           </div>
-          <div id="memo-body" class="memo-body">昨晚把右侧情报卡收成了实时开发面板。今天加入去重持久化的活动记录和紧凑时间线，状态切换现在可以回看。下一步继续增强事件筛选与活动详情。</div>
+          <div id="memo-body" class="memo-body">昨晚为实时面板加入了可回看的活动时间线。今天把前端切换到开发服务器的只读观察 API，本地运行也能同步看到 Hermes 状态。下一步继续增强远程连接提示与事件筛选。</div>
           <div class="memo-footer">
             <span id="memo-stamp" class="memo-stamp">内部记录</span>
           </div>
@@ -47,7 +48,7 @@
           <div class="console-header">
             <div>
               <div id="office-title">海辛小龙虾的办公室</div>
-              <div id="shell-done" class="shell-done">Step 14：实时面板会保留状态切换记录，并通过紧凑时间线回看最近活动。</div>
+              <div id="shell-done" class="shell-done">Step 15：本地前端已切换到开发服务器的只读观察接口。</div>
             </div>
             <div id="console-badge" class="console-badge">OFFICE CONSOLE</div>
           </div>
@@ -119,6 +120,6 @@
   </main>
 
   <script src="/static/vendor/phaser-3.80.1.min.js"></script>
-  <script type="module" src="/static/src/main.js?v=step14b"></script>
+  <script type="module" src="/static/src/main.js?v=step15b"></script>
 </body>
 </html>

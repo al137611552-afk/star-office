@@ -1,4 +1,4 @@
-import { STRINGS, DETAIL_KEY_BY_STATE, resolveOfficeDetail } from '../config/i18n.js?v=step14b';
+import { STRINGS, DETAIL_KEY_BY_STATE, resolveOfficeDetail } from '../config/i18n.js?v=step15b';
 
 const AREA_KEY_BY_STATE = {
   idle: 'areaIdle',
@@ -32,6 +32,7 @@ export function setupUI(onStateSelect, onLocaleChange) {
     currentOfficeDetailI18n: null,
     currentStatusPayload: null,
     currentActivityHistory: [],
+    observerMode: false,
     currentMemoDate: '2026-02-26',
     currentMemoBody: '',
   };
@@ -220,11 +221,12 @@ export function setupUI(onStateSelect, onLocaleChange) {
 
   function updateStateTestLabels(strings) {
     if (refs.statesLabel) refs.statesLabel.textContent = strings.statesLabel;
-    if (refs.statesHint) refs.statesHint.textContent = strings.statesHint;
+    if (refs.statesHint) refs.statesHint.textContent = state.observerMode ? strings.observerHint : strings.statesHint;
     if (refs.consoleBadge) refs.consoleBadge.textContent = strings.consoleBadge;
     refs.stateTestButtons.forEach((button) => {
       const key = button.dataset.labelKey;
       if (key && strings[key]) button.textContent = strings[key];
+      button.title = state.observerMode ? strings.observerHint : '';
     });
   }
 
@@ -306,6 +308,7 @@ export function setupUI(onStateSelect, onLocaleChange) {
 
   refs.stateTestButtons.forEach((button) => {
     button.addEventListener('click', () => {
+      if (state.observerMode) return;
       const stateName = button.dataset.state;
       const detailKey = button.dataset.detailKey;
       const detail = state.strings[detailKey] || stateName;
@@ -358,6 +361,15 @@ export function setupUI(onStateSelect, onLocaleChange) {
     setActivityHistory(items) {
       state.currentActivityHistory = Array.isArray(items) ? items : [];
       renderActivityHistory(state.strings);
+    },
+    setObserverMode(enabled) {
+      state.observerMode = Boolean(enabled);
+      document.body.dataset.observerMode = state.observerMode ? 'remote' : 'local';
+      refs.stateTestButtons.forEach((button) => {
+        button.disabled = state.observerMode;
+        button.title = state.observerMode ? state.strings.observerHint : '';
+      });
+      updateStateTestLabels(state.strings);
     },
     getStateDetail(stateName) {
       const key = DETAIL_KEY_BY_STATE[stateName] || `detail${stateName.charAt(0).toUpperCase()}${stateName.slice(1)}`;

@@ -19,15 +19,15 @@ app = Flask(__name__, static_folder=str(FRONTEND), static_url_path="/static")
 MEMOS = {
     "zh": {
         "date": "2026-02-26",
-        "memo": "昨晚把右侧情报卡收成了实时开发面板。\n今天加入去重持久化的活动记录和紧凑时间线，状态切换现在可以回看。\n下一步继续增强事件筛选与活动详情。",
+        "memo": "昨晚为实时面板加入了可回看的活动时间线。\n今天把前端切换到开发服务器的只读观察 API，本地运行也能同步看到 Hermes 状态。\n下一步继续增强远程连接提示与事件筛选。",
     },
     "en": {
         "date": "2026-02-26",
-        "memo": "Last night the right info card became a live development panel.\nToday it gained deduplicated persistent activity records and a compact timeline, so state transitions can be reviewed.\nNext up: event filters and richer activity details.",
+        "memo": "Last night the live panel gained a reviewable activity timeline.\nToday the frontend switched to the development server's read-only observer API, so a local run can follow Hermes remotely.\nNext up: clearer connection feedback and event filters.",
     },
     "ja": {
         "date": "2026-02-26",
-        "memo": "昨夜、右側の情報カードをリアルタイム開発パネルに仕上げました。\n今日は重複を除く永続的な活動記録とコンパクトなタイムラインを追加し、状態遷移を振り返れるようにしました。\n次はイベント絞り込みと活動詳細を強化します。",
+        "memo": "昨夜、ライブパネルに振り返り可能な活動タイムラインを追加しました。\n今日はフロントエンドを開発サーバーの読み取り専用監視 API に切り替え、ローカル起動でも Hermes の状態を同期できるようにしました。\n次は接続表示とイベント絞り込みを強化します。",
     },
 }
 

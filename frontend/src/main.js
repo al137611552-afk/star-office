@@ -1,6 +1,6 @@
-import { fetchActivityHistory, fetchStatus, fetchYesterdayMemo, setOfficeState } from './core/api.js?v=step14b';
-import { createGameConfig } from './scene/office-scene.js?v=step14b';
-import { setupUI } from './ui/dom.js?v=step14b';
+import { fetchActivityHistory, fetchStatus, fetchYesterdayMemo, isRemoteObserver, setOfficeState } from './core/api.js?v=step15b';
+import { createGameConfig } from './scene/office-scene.js?v=step15b';
+import { setupUI } from './ui/dom.js?v=step15b';
 
 async function main() {
   let ui;
@@ -18,13 +18,16 @@ async function main() {
     if (ui) ui.setActivityHistory(history?.items || []);
   }
 
+  const observerMode = isRemoteObserver();
+  const stateHandler = observerMode ? null : async (stateName, detail, detailI18n) => {
+    await setOfficeState(stateName, detail, detailI18n);
+    const status = await fetchStatus();
+    scene.setStatus(status);
+    await refreshActivityHistory();
+  };
+
   ui = setupUI(
-    async (stateName, detail, detailI18n) => {
-      await setOfficeState(stateName, detail, detailI18n);
-      const status = await fetchStatus();
-      scene.setStatus(status);
-      await refreshActivityHistory();
-    },
+    stateHandler,
     async (locale) => {
       try {
         await refreshMemo(locale);
@@ -33,6 +36,7 @@ async function main() {
       }
     }
   );
+  ui.setObserverMode(observerMode);
 
   const game = new Phaser.Game(createGameConfig());
 
