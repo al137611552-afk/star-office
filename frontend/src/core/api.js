@@ -4,6 +4,12 @@ export async function fetchStatus() {
   return await res.json();
 }
 
+export async function fetchActivityHistory(limit = 6) {
+  const res = await fetch(`/activity-history?limit=${encodeURIComponent(limit)}`);
+  if (!res.ok) throw new Error(`activity-history ${res.status}`);
+  return await res.json();
+}
+
 export async function fetchYesterdayMemo(locale = 'zh') {
   const res = await fetch(`/yesterday-memo?lang=${encodeURIComponent(locale)}`);
   if (!res.ok) throw new Error(`memo ${res.status}`);

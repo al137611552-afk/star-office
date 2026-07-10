@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Star Office UI Remake - Step 13</title>
-  <link rel="stylesheet" href="/static/styles/tokens.css?v=step13b">
-  <link rel="stylesheet" href="/static/styles/base.css?v=step13b">
-  <link rel="stylesheet" href="/static/styles/panels.css?v=step13b">
+  <title>Star Office UI Remake - Step 14</title>
+  <link rel="stylesheet" href="/static/styles/tokens.css?v=step14b">
+  <link rel="stylesheet" href="/static/styles/base.css?v=step14b">
+  <link rel="stylesheet" href="/static/styles/panels.css?v=step14b">
 </head>
 <body>
   <div id="floating-tools">
@@ -34,7 +34,7 @@
             <div id="memo-kicker" class="memo-kicker">CLAWNOTE / LAST NIGHT</div>
             <div id="memo-date" class="memo-date">2026-02-26</div>
           </div>
-          <div id="memo-body" class="memo-body">昨晚把真实开发元信息接进右侧卡片。今天把它收成带状态色、活动命令和折叠文件清单的直播面板。下一步继续增强历史活动与时间线。</div>
+          <div id="memo-body" class="memo-body">昨晚把右侧情报卡收成了实时开发面板。今天加入去重持久化的活动记录和紧凑时间线，状态切换现在可以回看。下一步继续增强事件筛选与活动详情。</div>
           <div class="memo-footer">
             <span id="memo-stamp" class="memo-stamp">内部记录</span>
           </div>
@@ -47,7 +47,7 @@
           <div class="console-header">
             <div>
               <div id="office-title">海辛小龙虾的办公室</div>
-              <div id="shell-done">Step 13：情报卡已收成实时面板，状态颜色、命令活动与变更文件会同步联动。</div>
+              <div id="shell-done" class="shell-done">Step 14：实时面板会保留状态切换记录，并通过紧凑时间线回看最近活动。</div>
             </div>
             <div id="console-badge" class="console-badge">OFFICE CONSOLE</div>
           </div>
@@ -77,7 +77,7 @@
             <div id="meta-kicker" class="meta-kicker">OFFICE LIVE FEED</div>
             <div class="meta-state-chip"><span class="meta-state-dot"></span><span id="meta-state-label">待命</span></div>
           </div>
-          <div id="meta-summary" class="meta-summary">实时开发状态、分支与活动命令会同步显示在这里。</div>
+          <div id="meta-summary" class="meta-summary">实时开发状态与最近活动时间线会同步显示在这里。</div>
           <div class="meta-focus-block">
             <div id="meta-label-focus" class="meta-label">当前活动</div>
             <div id="meta-value-focus" class="meta-value">等待下一步开发指令</div>
@@ -103,16 +103,22 @@
             </div>
             <div id="meta-value-command" class="meta-value meta-value--mono">等待下一步开发指令</div>
           </div>
-          <details id="meta-files-details" class="meta-files-details" hidden>
-            <summary id="meta-files-summary">查看变更文件</summary>
-            <div id="meta-files-list" class="meta-files-list"></div>
-          </details>
+          <div class="meta-footer-actions">
+            <details id="meta-files-details" class="meta-popover-details meta-files-details" hidden>
+              <summary id="meta-files-summary">查看变更文件</summary>
+              <div id="meta-files-list" class="meta-popover-list meta-files-list"></div>
+            </details>
+            <details id="meta-history-details" class="meta-popover-details meta-history-details">
+              <summary id="meta-history-summary">最近活动</summary>
+              <div id="meta-history-list" class="meta-popover-list meta-history-list"></div>
+            </details>
+          </div>
         </div>
       </article>
     </section>
   </main>
 
   <script src="/static/vendor/phaser-3.80.1.min.js"></script>
-  <script type="module" src="/static/src/main.js?v=step13b"></script>
+  <script type="module" src="/static/src/main.js?v=step14b"></script>
 </body>
 </html>

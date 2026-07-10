@@ -1,4 +1,4 @@
-import { STRINGS, DETAIL_KEY_BY_STATE, resolveOfficeDetail } from '../config/i18n.js?v=step13b';
+import { STRINGS, DETAIL_KEY_BY_STATE, resolveOfficeDetail } from '../config/i18n.js?v=step14b';
 
 const AREA_KEY_BY_STATE = {
   idle: 'areaIdle',
@@ -31,6 +31,7 @@ export function setupUI(onStateSelect, onLocaleChange) {
     currentOfficeDetail: STRINGS.zh.detailIdle,
     currentOfficeDetailI18n: null,
     currentStatusPayload: null,
+    currentActivityHistory: [],
     currentMemoDate: '2026-02-26',
     currentMemoBody: '',
   };
@@ -64,6 +65,9 @@ export function setupUI(onStateSelect, onLocaleChange) {
     metaFilesDetails: document.getElementById('meta-files-details'),
     metaFilesSummary: document.getElementById('meta-files-summary'),
     metaFilesList: document.getElementById('meta-files-list'),
+    metaHistoryDetails: document.getElementById('meta-history-details'),
+    metaHistorySummary: document.getElementById('meta-history-summary'),
+    metaHistoryList: document.getElementById('meta-history-list'),
     consoleBadge: document.getElementById('console-badge'),
     shellDone: document.getElementById('shell-done'),
     memoBody: document.getElementById('memo-body'),
@@ -128,6 +132,59 @@ export function setupUI(onStateSelect, onLocaleChange) {
     if (files.length === 0) refs.metaFilesDetails.open = false;
   }
 
+  function formatActivityTime(value) {
+    const date = new Date(value || '');
+    if (Number.isNaN(date.getTime())) return '--:--';
+    return date.toLocaleTimeString(state.locale, { hour: '2-digit', minute: '2-digit', hour12: false });
+  }
+
+  function renderActivityHistory(strings) {
+    const items = Array.isArray(state.currentActivityHistory) ? state.currentActivityHistory : [];
+    refs.metaHistorySummary.textContent = (strings.historySummary || '{count}').replace('{count}', String(items.length));
+
+    if (items.length === 0) {
+      const empty = document.createElement('div');
+      empty.className = 'meta-history-empty';
+      empty.textContent = strings.historyEmpty;
+      refs.metaHistoryList.replaceChildren(empty);
+      return;
+    }
+
+    refs.metaHistoryList.replaceChildren(...items.map((entry) => {
+      const item = document.createElement('div');
+      item.className = 'meta-history-item';
+      item.dataset.state = entry.state || 'idle';
+
+      const dot = document.createElement('span');
+      dot.className = 'meta-history-dot';
+
+      const copy = document.createElement('div');
+      copy.className = 'meta-history-copy';
+
+      const head = document.createElement('div');
+      head.className = 'meta-history-head';
+      const stateKey = STATE_LABEL_KEY_BY_STATE[entry.state] || STATE_LABEL_KEY_BY_STATE.idle;
+      const label = document.createElement('span');
+      label.className = 'meta-history-state';
+      label.textContent = entry?.state_labels?.[state.locale] || strings[stateKey] || entry.state;
+      const time = document.createElement('time');
+      time.className = 'meta-history-time';
+      time.dateTime = entry.recorded_at || '';
+      time.textContent = formatActivityTime(entry.recorded_at);
+      head.append(label, time);
+
+      const fullDetail = resolveOfficeDetail(state.locale, entry.state || 'idle', entry);
+      const detail = document.createElement('div');
+      detail.className = 'meta-history-detail';
+      detail.textContent = trimCommand(fullDetail, state.locale === 'en' ? 48 : 30);
+      detail.title = fullDetail;
+
+      copy.append(head, detail);
+      item.append(dot, copy);
+      return item;
+    }));
+  }
+
   function renderMeta(strings) {
     const payload = state.currentStatusPayload || {};
     const localizedDetail = resolveOfficeDetail(state.locale, state.currentOfficeState, {
@@ -158,6 +215,7 @@ export function setupUI(onStateSelect, onLocaleChange) {
       state.locale === 'en' ? 52 : 28,
     );
     renderChangedFiles(strings, payload);
+    renderActivityHistory(strings);
   }
 
   function updateStateTestLabels(strings) {
@@ -238,6 +296,14 @@ export function setupUI(onStateSelect, onLocaleChange) {
     button.addEventListener('click', () => applyLocale(button.dataset.lang));
   });
 
+  refs.metaFilesDetails.addEventListener('toggle', () => {
+    if (refs.metaFilesDetails.open) refs.metaHistoryDetails.open = false;
+  });
+
+  refs.metaHistoryDetails.addEventListener('toggle', () => {
+    if (refs.metaHistoryDetails.open) refs.metaFilesDetails.open = false;
+  });
+
   refs.stateTestButtons.forEach((button) => {
     button.addEventListener('click', () => {
       const stateName = button.dataset.state;
@@ -288,6 +354,10 @@ export function setupUI(onStateSelect, onLocaleChange) {
       state.currentMemoDate = date;
       state.currentMemoBody = memo;
       renderMemo(state.strings);
+    },
+    setActivityHistory(items) {
+      state.currentActivityHistory = Array.isArray(items) ? items : [];
+      renderActivityHistory(state.strings);
     },
     getStateDetail(stateName) {
       const key = DETAIL_KEY_BY_STATE[stateName] || `detail${stateName.charAt(0).toUpperCase()}${stateName.slice(1)}`;

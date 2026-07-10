@@ -1,6 +1,6 @@
-import { fetchStatus, fetchYesterdayMemo, setOfficeState } from './core/api.js?v=step13b';
-import { createGameConfig } from './scene/office-scene.js?v=step13b';
-import { setupUI } from './ui/dom.js?v=step13b';
+import { fetchActivityHistory, fetchStatus, fetchYesterdayMemo, setOfficeState } from './core/api.js?v=step14b';
+import { createGameConfig } from './scene/office-scene.js?v=step14b';
+import { setupUI } from './ui/dom.js?v=step14b';
 
 async function main() {
   let ui;
@@ -13,11 +13,17 @@ async function main() {
     }
   }
 
+  async function refreshActivityHistory() {
+    const history = await fetchActivityHistory(6);
+    if (ui) ui.setActivityHistory(history?.items || []);
+  }
+
   ui = setupUI(
     async (stateName, detail, detailI18n) => {
       await setOfficeState(stateName, detail, detailI18n);
       const status = await fetchStatus();
       scene.setStatus(status);
+      await refreshActivityHistory();
     },
     async (locale) => {
       try {
@@ -40,6 +46,7 @@ async function main() {
   const initialStatus = await fetchStatus();
   scene.setStatus(initialStatus);
 
+  await refreshActivityHistory();
   await refreshMemo(ui.getLocale());
 
   ui.hideLoading();
@@ -52,6 +59,14 @@ async function main() {
       console.error(error);
     }
   }, 2000);
+
+  setInterval(async () => {
+    try {
+      await refreshActivityHistory();
+    } catch (error) {
+      console.error(error);
+    }
+  }, 5000);
 }
 
 main().catch((error) => {

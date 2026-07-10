@@ -7,3 +7,4 @@ venv/
 .DS_Store
 data/state.json
 data/manual-override.json
+data/activity-history.json

@@ -3,11 +3,15 @@ from pathlib import Path
 import json
 import subprocess
 from datetime import datetime, timedelta
+from threading import Lock
 
 ROOT = Path(__file__).parent
 FRONTEND = ROOT / "frontend"
 DATA = ROOT / "data"
 MANUAL_OVERRIDE_FILE = DATA / "manual-override.json"
+ACTIVITY_HISTORY_FILE = DATA / "activity-history.json"
+ACTIVITY_HISTORY_LIMIT = 40
+ACTIVITY_HISTORY_LOCK = Lock()
 JOIN_KEYS_FILE = DATA / "join-keys.json"
 
 app = Flask(__name__, static_folder=str(FRONTEND), static_url_path="/static")
@@ -15,15 +19,15 @@ app = Flask(__name__, static_folder=str(FRONTEND), static_url_path="/static")
 MEMOS = {
     "zh": {
         "date": "2026-02-26",
-        "memo": "昨晚把真实开发元信息接进右侧卡片。\n今天把它收成带状态色、活动命令和折叠文件清单的直播面板。\n下一步继续增强历史活动与时间线。",
+        "memo": "昨晚把右侧情报卡收成了实时开发面板。\n今天加入去重持久化的活动记录和紧凑时间线，状态切换现在可以回看。\n下一步继续增强事件筛选与活动详情。",
     },
     "en": {
         "date": "2026-02-26",
-        "memo": "Last night the right card was connected to real development metadata.\nToday it became a live panel with state colors, active commands, and a folded changed-file list.\nNext up: add activity history and a compact timeline.",
+        "memo": "Last night the right info card became a live development panel.\nToday it gained deduplicated persistent activity records and a compact timeline, so state transitions can be reviewed.\nNext up: event filters and richer activity details.",
     },
     "ja": {
         "date": "2026-02-26",
-        "memo": "昨夜、右側カードを実際の開発メタ情報へ接続しました。\n今日は状態色、実行コマンド、折りたたみ式の変更ファイル一覧を備えたライブパネルに仕上げました。\n次は活動履歴とコンパクトなタイムラインを追加します。",
+        "memo": "昨夜、右側の情報カードをリアルタイム開発パネルに仕上げました。\n今日は重複を除く永続的な活動記録とコンパクトなタイムラインを追加し、状態遷移を振り返れるようにしました。\n次はイベント絞り込みと活動詳細を強化します。",
     },
 }
 
@@ -360,11 +364,77 @@ def infer_auto_status():
     )
 
 
+def activity_signature(status: dict) -> str:
+    running_command = status.get("running_command") or {}
+    last_commit = status.get("last_commit") or {}
+    signature_payload = {
+        "state": status.get("state"),
+        "mode": status.get("mode"),
+        "source": status.get("source"),
+        "detail_i18n": status.get("detail_i18n") or {},
+        "branch": status.get("branch"),
+        "changed_files": sorted(status.get("changed_files") or []),
+        "running_command": running_command.get("command"),
+        "last_commit_sha": last_commit.get("sha"),
+    }
+    return json.dumps(signature_payload, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+
+
+def record_activity(status: dict):
+    signature = activity_signature(status)
+    recorded_at = now_iso()
+    running_command = status.get("running_command") or {}
+    last_commit = status.get("last_commit") or {}
+    state_name = status.get("state") or "idle"
+    entry = {
+        "id": datetime.now().strftime("%Y%m%dT%H%M%S%f"),
+        "state": state_name,
+        "detail": status.get("detail") or "",
+        "detail_i18n": status.get("detail_i18n") or {},
+        "recorded_at": recorded_at,
+        "mode": status.get("mode") or "auto",
+        "source": status.get("source") or "unknown",
+        "branch": status.get("branch") or "",
+        "changed_file_count": int(status.get("changed_file_count", 0) or 0),
+        "changed_files": list(status.get("changed_files") or [])[:12],
+        "running_command": running_command.get("command"),
+        "last_commit_sha": last_commit.get("sha") or "",
+        "state_labels": status.get("state_labels") or STATE_LABELS.get(state_name, STATE_LABELS["idle"]),
+        "_signature": signature,
+    }
+
+    with ACTIVITY_HISTORY_LOCK:
+        payload = load_json(ACTIVITY_HISTORY_FILE, {"items": []})
+        items = payload.get("items") if isinstance(payload, dict) else []
+        if not isinstance(items, list):
+            items = []
+        if items and items[-1].get("_signature") == signature:
+            return None
+        items.append(entry)
+        save_json(ACTIVITY_HISTORY_FILE, {"items": items[-ACTIVITY_HISTORY_LIMIT:]})
+    return {key: value for key, value in entry.items() if not key.startswith("_")}
+
+
+def read_activity_history(limit: int = 8):
+    limit = max(1, min(int(limit or 8), 20))
+    with ACTIVITY_HISTORY_LOCK:
+        payload = load_json(ACTIVITY_HISTORY_FILE, {"items": []})
+    items = payload.get("items") if isinstance(payload, dict) else []
+    if not isinstance(items, list):
+        items = []
+    visible_items = [
+        {key: value for key, value in item.items() if not key.startswith("_")}
+        for item in reversed(items[-limit:])
+        if isinstance(item, dict)
+    ]
+    return {"items": visible_items, "count": len(visible_items), "limit": limit}
+
+
 def get_live_status():
     manual = get_manual_override()
-    if manual:
-        return manual
-    return infer_auto_status()
+    live_status = manual or infer_auto_status()
+    record_activity(live_status)
+    return live_status
 
 
 @app.after_request
@@ -385,6 +455,15 @@ def index():
 @app.get("/status")
 def status():
     return jsonify(get_live_status())
+
+
+@app.get("/activity-history")
+def activity_history():
+    try:
+        limit = int(request.args.get("limit") or 8)
+    except (TypeError, ValueError):
+        limit = 8
+    return jsonify(read_activity_history(limit))
 
 
 @app.get("/dev-status")
@@ -425,6 +504,7 @@ def set_state():
         mode="manual",
     )
     save_json(MANUAL_OVERRIDE_FILE, manual_payload)
+    record_activity(manual_payload)
     return jsonify({"ok": True, "status": manual_payload})
 
 
