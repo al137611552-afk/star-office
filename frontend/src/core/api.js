@@ -15,12 +15,25 @@ function apiUrl(path) {
 }
 
 async function fetchJson(path, options = {}) {
-  const res = await fetch(apiUrl(path), {
-    cache: 'no-store',
-    ...options,
-  });
-  if (!res.ok) throw new Error(`${path} ${res.status}`);
-  return await res.json();
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 4000);
+
+  try {
+    const res = await fetch(apiUrl(path), {
+      cache: 'no-store',
+      ...options,
+      signal: controller.signal,
+    });
+    if (!res.ok) throw new Error(`${path} ${res.status}`);
+    return await res.json();
+  } catch (error) {
+    if (error.name === 'AbortError') {
+      throw new Error(`${path} timed out`);
+    }
+    throw error;
+  } finally {
+    clearTimeout(timeout);
+  }
 }
 
 export async function fetchStatus() {

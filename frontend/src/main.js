@@ -1,6 +1,6 @@
-import { fetchActivityHistory, fetchStatus, fetchYesterdayMemo, isRemoteObserver, setOfficeState } from './core/api.js?v=step15b';
-import { createGameConfig } from './scene/office-scene.js?v=step15b';
-import { setupUI } from './ui/dom.js?v=step15b';
+import { fetchActivityHistory, fetchStatus, fetchYesterdayMemo, isRemoteObserver, setOfficeState } from './core/api.js?v=step15c';
+import { createGameConfig } from './scene/office-scene.js?v=step15c';
+import { setupUI } from './ui/dom.js?v=step15c';
 
 async function main() {
   let ui;
@@ -47,11 +47,29 @@ async function main() {
 
   scene = game.scene.keys.office;
 
-  const initialStatus = await fetchStatus();
+  let initialStatus;
+  try {
+    initialStatus = await fetchStatus();
+  } catch (error) {
+    console.error(error);
+    initialStatus = {
+      state: 'error',
+      mode: 'auto',
+      source: 'observer-unreachable',
+      detail: 'Remote observer unavailable; retrying automatically',
+      detail_i18n: {
+        zh: '远程观察接口暂时无法连接，正在自动重试',
+        en: 'Remote observer unavailable; retrying automatically',
+        ja: 'リモート監視 API に接続できません。自動再試行中です',
+      },
+    };
+  }
   scene.setStatus(initialStatus);
 
-  await refreshActivityHistory();
-  await refreshMemo(ui.getLocale());
+  void Promise.allSettled([
+    refreshActivityHistory(),
+    refreshMemo(ui.getLocale()),
+  ]);
 
   ui.hideLoading();
 

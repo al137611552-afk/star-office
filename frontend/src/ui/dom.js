@@ -1,4 +1,4 @@
-import { STRINGS, DETAIL_KEY_BY_STATE, resolveOfficeDetail } from '../config/i18n.js?v=step15b';
+import { STRINGS, DETAIL_KEY_BY_STATE, resolveOfficeDetail } from '../config/i18n.js?v=step15c';
 
 const AREA_KEY_BY_STATE = {
   idle: 'areaIdle',
