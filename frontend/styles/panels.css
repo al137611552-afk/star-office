@@ -395,15 +395,15 @@
 .meta-summary {
   min-height: 40px;
   color: #d7dee8;
-  font-size: 11px;
-  line-height: 15px;
+  font-size: 10px;
+  line-height: 14px;
 }
 
 
 .meta-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
+  gap: 8px;
 }
 
 .meta-item {
@@ -412,6 +412,11 @@
   background: rgba(11, 16, 26, 0.58);
   border: 1px solid rgba(255, 255, 255, 0.06);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  min-width: 0;
+}
+
+.meta-item--wide {
+  grid-column: 1 / -1;
 }
 
 .meta-label {
@@ -427,6 +432,13 @@
   color: #f6e7af;
   font-size: 13px;
   line-height: 17px;
+  min-width: 0;
+  word-break: break-word;
+}
+
+.meta-value--mono {
+  font-family: 'ArkPixelLatin', monospace;
+  font-size: 12px;
 }
 
 

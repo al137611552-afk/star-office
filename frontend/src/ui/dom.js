@@ -1,4 +1,4 @@
-import { STRINGS, DETAIL_KEY_BY_STATE, resolveOfficeDetail } from '../config/i18n.js?v=step11a';
+import { STRINGS, DETAIL_KEY_BY_STATE, resolveOfficeDetail } from '../config/i18n.js?v=step12b';
 
 const PALETTE = [
   ['#1a1a2e', 'bg-page'],
@@ -32,6 +32,7 @@ export function setupUI(onStateSelect, onLocaleChange) {
     currentOfficeState: 'idle',
     currentOfficeDetail: STRINGS.zh.detailIdle,
     currentOfficeDetailI18n: null,
+    currentStatusPayload: null,
     currentMemoDate: '2026-02-26',
     currentMemoBody: '',
   };
@@ -50,13 +51,21 @@ export function setupUI(onStateSelect, onLocaleChange) {
     metaSummary: document.getElementById('meta-summary'),
     metaLabelScene: document.getElementById('meta-label-scene'),
     metaLabelFocus: document.getElementById('meta-label-focus'),
+    metaLabelBranch: document.getElementById('meta-label-branch'),
+    metaLabelChanges: document.getElementById('meta-label-changes'),
     metaLabelMotion: document.getElementById('meta-label-motion'),
     metaLabelBubbles: document.getElementById('meta-label-bubbles'),
+    metaLabelMode: document.getElementById('meta-label-mode'),
+    metaLabelCommand: document.getElementById('meta-label-command'),
     metaLabelPalette: document.getElementById('meta-label-palette'),
     metaValueScene: document.getElementById('meta-value-scene'),
     metaValueFocus: document.getElementById('meta-value-focus'),
+    metaValueBranch: document.getElementById('meta-value-branch'),
+    metaValueChanges: document.getElementById('meta-value-changes'),
     metaValueMotion: document.getElementById('meta-value-motion'),
     metaValueBubbles: document.getElementById('meta-value-bubbles'),
+    metaValueMode: document.getElementById('meta-value-mode'),
+    metaValueCommand: document.getElementById('meta-value-command'),
     consoleBadge: document.getElementById('console-badge'),
     shellDone: document.getElementById('shell-done'),
     memoBody: document.getElementById('memo-body'),
@@ -87,7 +96,35 @@ export function setupUI(onStateSelect, onLocaleChange) {
     refs.memoBody.textContent = state.currentMemoBody || '';
   }
 
+  function formatCount(strings, count) {
+    if (count <= 0) return strings.changesZero;
+    if (count === 1) return strings.changesOne;
+    return (strings.changesMany || '{count}').replace('{count}', String(count));
+  }
+
+  function trimMiddle(text, max = 32) {
+    const value = (text || '').trim();
+    if (!value) return '';
+    if (value.length <= max) return value;
+    const head = Math.ceil((max - 1) / 2);
+    const tail = Math.floor((max - 1) / 2);
+    return `${value.slice(0, head)}…${value.slice(-tail)}`;
+  }
+
+  function trimCommand(text, max = 54) {
+    const value = (text || '').replace(/\s+/g, ' ').trim();
+    if (!value) return '';
+    return value.length <= max ? value : `${value.slice(0, max - 1)}…`;
+  }
+
+  function resolveModeText(strings, payload) {
+    const mode = payload?.mode === 'manual' ? strings.modeManual : strings.modeAuto;
+    const source = (payload?.source || '').replace(/^auto-/, '').replace(/^manual-/, '').replace(/-/g, ' ').trim();
+    return source ? `${mode} · ${source}` : mode;
+  }
+
   function renderMeta(strings) {
+    const payload = state.currentStatusPayload || {};
     const localizedDetail = resolveOfficeDetail(state.locale, state.currentOfficeState, {
       detail: state.currentOfficeDetail,
       detail_i18n: state.currentOfficeDetailI18n,
@@ -96,13 +133,24 @@ export function setupUI(onStateSelect, onLocaleChange) {
     refs.metaSummary.textContent = strings.metaSummary;
     refs.metaLabelScene.textContent = strings.metaLabelScene;
     refs.metaLabelFocus.textContent = strings.metaLabelFocus;
+    refs.metaLabelBranch.textContent = strings.metaLabelBranch;
+    refs.metaLabelChanges.textContent = strings.metaLabelChanges;
     refs.metaLabelMotion.textContent = strings.metaLabelMotion;
     refs.metaLabelBubbles.textContent = strings.metaLabelBubbles;
+    refs.metaLabelMode.textContent = strings.metaLabelMode;
+    refs.metaLabelCommand.textContent = strings.metaLabelCommand;
     refs.metaLabelPalette.textContent = strings.metaLabelPalette;
     refs.metaValueScene.textContent = getAreaLabel(strings, state.currentOfficeState);
     refs.metaValueFocus.textContent = localizedDetail || strings.detailIdle;
+    refs.metaValueBranch.textContent = trimMiddle(payload.branch || strings.branchFallback, state.locale === 'en' ? 22 : 18);
+    refs.metaValueChanges.textContent = formatCount(strings, Number(payload.changed_file_count || 0));
     refs.metaValueMotion.textContent = strings.metaMotionValue;
     refs.metaValueBubbles.textContent = strings.metaBubbleValue;
+    refs.metaValueMode.textContent = resolveModeText(strings, payload);
+    refs.metaValueCommand.textContent = trimCommand(
+      payload?.running_command?.command || resolveOfficeDetail(state.locale, state.currentOfficeState, payload) || strings.commandFallback,
+      state.locale === 'en' ? 52 : 28,
+    );
     renderPalette();
   }
 
@@ -216,6 +264,7 @@ export function setupUI(onStateSelect, onLocaleChange) {
     state.currentOfficeState = nextState;
     state.currentOfficeDetail = payload.detail || '';
     state.currentOfficeDetailI18n = payload.detail_i18n || null;
+    state.currentStatusPayload = payload;
 
     typeStatus(formatStatusLine(stateLabel, detail));
     setActiveStateButton(nextState);
