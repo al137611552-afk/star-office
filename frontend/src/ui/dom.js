@@ -1,15 +1,4 @@
-import { STRINGS, DETAIL_KEY_BY_STATE, resolveOfficeDetail } from '../config/i18n.js?v=step12b';
-
-const PALETTE = [
-  ['#1a1a2e', 'bg-page'],
-  ['#141722', 'panel'],
-  ['#64477d', 'stage-shadow'],
-  ['#ffd700', 'gold'],
-  ['#e94560', 'rose'],
-  ['#22c55e', 'green'],
-  ['#78a340', 'olive'],
-  ['#5d4037', 'plaque'],
-];
+import { STRINGS, DETAIL_KEY_BY_STATE, resolveOfficeDetail } from '../config/i18n.js?v=step13b';
 
 const AREA_KEY_BY_STATE = {
   idle: 'areaIdle',
@@ -18,6 +7,15 @@ const AREA_KEY_BY_STATE = {
   executing: 'areaExecuting',
   syncing: 'areaSyncing',
   error: 'areaError',
+};
+
+const STATE_LABEL_KEY_BY_STATE = {
+  idle: 'stateIdle',
+  writing: 'stateWriting',
+  researching: 'stateResearching',
+  executing: 'stateExecuting',
+  syncing: 'stateSyncing',
+  error: 'stateError',
 };
 
 const TYPEWRITER_DELAY = 50;
@@ -46,43 +44,36 @@ export function setupUI(onStateSelect, onLocaleChange) {
     memoTitle: document.getElementById('memo-title'),
     memoKicker: document.getElementById('memo-kicker'),
     memoStamp: document.getElementById('memo-stamp'),
+    metaPanel: document.getElementById('meta-panel'),
     metaTitle: document.getElementById('meta-title'),
     metaKicker: document.getElementById('meta-kicker'),
+    metaStateLabel: document.getElementById('meta-state-label'),
     metaSummary: document.getElementById('meta-summary'),
-    metaLabelScene: document.getElementById('meta-label-scene'),
     metaLabelFocus: document.getElementById('meta-label-focus'),
     metaLabelBranch: document.getElementById('meta-label-branch'),
     metaLabelChanges: document.getElementById('meta-label-changes'),
-    metaLabelMotion: document.getElementById('meta-label-motion'),
-    metaLabelBubbles: document.getElementById('meta-label-bubbles'),
     metaLabelMode: document.getElementById('meta-label-mode'),
     metaLabelCommand: document.getElementById('meta-label-command'),
-    metaLabelPalette: document.getElementById('meta-label-palette'),
-    metaValueScene: document.getElementById('meta-value-scene'),
     metaValueFocus: document.getElementById('meta-value-focus'),
     metaValueBranch: document.getElementById('meta-value-branch'),
     metaValueChanges: document.getElementById('meta-value-changes'),
-    metaValueMotion: document.getElementById('meta-value-motion'),
-    metaValueBubbles: document.getElementById('meta-value-bubbles'),
     metaValueMode: document.getElementById('meta-value-mode'),
+    metaCommand: document.getElementById('meta-command'),
+    metaCommandBadge: document.getElementById('meta-command-badge'),
     metaValueCommand: document.getElementById('meta-value-command'),
+    metaFilesDetails: document.getElementById('meta-files-details'),
+    metaFilesSummary: document.getElementById('meta-files-summary'),
+    metaFilesList: document.getElementById('meta-files-list'),
     consoleBadge: document.getElementById('console-badge'),
     shellDone: document.getElementById('shell-done'),
     memoBody: document.getElementById('memo-body'),
     memoDate: document.getElementById('memo-date'),
     statusLine: document.getElementById('status-line'),
-    paletteList: document.getElementById('palette-list'),
     langButtons: [...document.querySelectorAll('[data-lang]')],
     stateTestButtons: [...document.querySelectorAll('[data-state]')],
     statesLabel: document.getElementById('states-label'),
     statesHint: document.getElementById('states-hint'),
   };
-
-  function renderPalette() {
-    refs.paletteList.innerHTML = PALETTE.map(([hex, label]) => `
-      <span class="palette-swatch"><span class="palette-chip" style="background:${hex}"></span>${label}</span>
-    `).join('');
-  }
 
   function getAreaLabel(strings, stateName) {
     const key = AREA_KEY_BY_STATE[stateName] || AREA_KEY_BY_STATE.idle;
@@ -123,35 +114,50 @@ export function setupUI(onStateSelect, onLocaleChange) {
     return source ? `${mode} · ${source}` : mode;
   }
 
+  function renderChangedFiles(strings, payload) {
+    const files = Array.isArray(payload?.changed_files) ? payload.changed_files : [];
+    refs.metaFilesDetails.hidden = files.length === 0;
+    refs.metaFilesSummary.textContent = (strings.filesSummary || '{count}').replace('{count}', String(files.length));
+    refs.metaFilesList.replaceChildren(...files.map((path) => {
+      const item = document.createElement('div');
+      item.className = 'meta-file-item';
+      item.textContent = path;
+      item.title = path;
+      return item;
+    }));
+    if (files.length === 0) refs.metaFilesDetails.open = false;
+  }
+
   function renderMeta(strings) {
     const payload = state.currentStatusPayload || {};
     const localizedDetail = resolveOfficeDetail(state.locale, state.currentOfficeState, {
       detail: state.currentOfficeDetail,
       detail_i18n: state.currentOfficeDetailI18n,
     });
+    const runningCommand = payload?.running_command?.command || '';
+    const stateLabelKey = STATE_LABEL_KEY_BY_STATE[state.currentOfficeState] || STATE_LABEL_KEY_BY_STATE.idle;
+
+    refs.metaPanel.dataset.state = state.currentOfficeState;
+    refs.metaPanel.dataset.mode = payload?.mode || 'auto';
     refs.metaKicker.textContent = strings.metaKicker;
+    refs.metaStateLabel.textContent = payload?.state_labels?.[state.locale] || strings[stateLabelKey] || state.currentOfficeState;
     refs.metaSummary.textContent = strings.metaSummary;
-    refs.metaLabelScene.textContent = strings.metaLabelScene;
     refs.metaLabelFocus.textContent = strings.metaLabelFocus;
     refs.metaLabelBranch.textContent = strings.metaLabelBranch;
     refs.metaLabelChanges.textContent = strings.metaLabelChanges;
-    refs.metaLabelMotion.textContent = strings.metaLabelMotion;
-    refs.metaLabelBubbles.textContent = strings.metaLabelBubbles;
     refs.metaLabelMode.textContent = strings.metaLabelMode;
     refs.metaLabelCommand.textContent = strings.metaLabelCommand;
-    refs.metaLabelPalette.textContent = strings.metaLabelPalette;
-    refs.metaValueScene.textContent = getAreaLabel(strings, state.currentOfficeState);
     refs.metaValueFocus.textContent = localizedDetail || strings.detailIdle;
     refs.metaValueBranch.textContent = trimMiddle(payload.branch || strings.branchFallback, state.locale === 'en' ? 22 : 18);
     refs.metaValueChanges.textContent = formatCount(strings, Number(payload.changed_file_count || 0));
-    refs.metaValueMotion.textContent = strings.metaMotionValue;
-    refs.metaValueBubbles.textContent = strings.metaBubbleValue;
     refs.metaValueMode.textContent = resolveModeText(strings, payload);
+    refs.metaCommand.classList.toggle('is-live', Boolean(runningCommand));
+    refs.metaCommandBadge.textContent = runningCommand ? strings.commandLive : strings.commandRecent;
     refs.metaValueCommand.textContent = trimCommand(
-      payload?.running_command?.command || resolveOfficeDetail(state.locale, state.currentOfficeState, payload) || strings.commandFallback,
+      runningCommand || localizedDetail || strings.commandFallback,
       state.locale === 'en' ? 52 : 28,
     );
-    renderPalette();
+    renderChangedFiles(strings, payload);
   }
 
   function updateStateTestLabels(strings) {

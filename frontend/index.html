@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Star Office UI Remake - Step 12</title>
-  <link rel="stylesheet" href="/static/styles/tokens.css?v=step12b">
-  <link rel="stylesheet" href="/static/styles/base.css?v=step12b">
-  <link rel="stylesheet" href="/static/styles/panels.css?v=step12b">
+  <title>Star Office UI Remake - Step 13</title>
+  <link rel="stylesheet" href="/static/styles/tokens.css?v=step13b">
+  <link rel="stylesheet" href="/static/styles/base.css?v=step13b">
+  <link rel="stylesheet" href="/static/styles/panels.css?v=step13b">
 </head>
 <body>
   <div id="floating-tools">
@@ -34,7 +34,7 @@
             <div id="memo-kicker" class="memo-kicker">CLAWNOTE / LAST NIGHT</div>
             <div id="memo-date" class="memo-date">2026-02-26</div>
           </div>
-          <div id="memo-body" class="memo-body">当前阶段重点是把真实开发元信息直接挂到页面。下一步继续压缩文案层级，并让右侧卡片更像直播状态面板。</div>
+          <div id="memo-body" class="memo-body">昨晚把真实开发元信息接进右侧卡片。今天把它收成带状态色、活动命令和折叠文件清单的直播面板。下一步继续增强历史活动与时间线。</div>
           <div class="memo-footer">
             <span id="memo-stamp" class="memo-stamp">内部记录</span>
           </div>
@@ -47,7 +47,7 @@
           <div class="console-header">
             <div>
               <div id="office-title">海辛小龙虾的办公室</div>
-              <div id="shell-done">Step 12：右侧情报卡开始显示分支、变更文件数与运行命令等真实开发细节。</div>
+              <div id="shell-done">Step 13：情报卡已收成实时面板，状态颜色、命令活动与变更文件会同步联动。</div>
             </div>
             <div id="console-badge" class="console-badge">OFFICE CONSOLE</div>
           </div>
@@ -70,20 +70,19 @@
         </div>
       </article>
 
-      <article id="meta-panel" class="panel pixel-frame">
+      <article id="meta-panel" class="panel pixel-frame" data-state="idle" data-mode="auto">
         <div id="meta-title" class="panel-title">办公室情报卡</div>
         <div class="meta-card">
-          <div id="meta-kicker" class="meta-kicker">OFFICE INFO CARD</div>
-          <div id="meta-summary" class="meta-summary">右侧卡片现在直接读取真实开发状态元信息，自动状态与手动覆盖都会落到同一套面板。</div>
-          <div class="meta-grid">
-            <div class="meta-item">
-              <div id="meta-label-scene" class="meta-label">当前场景</div>
-              <div id="meta-value-scene" class="meta-value">休息区</div>
-            </div>
-            <div class="meta-item">
-              <div id="meta-label-focus" class="meta-label">执行重点</div>
-              <div id="meta-value-focus" class="meta-value">耳朵竖起来了</div>
-            </div>
+          <div class="meta-live-row">
+            <div id="meta-kicker" class="meta-kicker">OFFICE LIVE FEED</div>
+            <div class="meta-state-chip"><span class="meta-state-dot"></span><span id="meta-state-label">待命</span></div>
+          </div>
+          <div id="meta-summary" class="meta-summary">实时开发状态、分支与活动命令会同步显示在这里。</div>
+          <div class="meta-focus-block">
+            <div id="meta-label-focus" class="meta-label">当前活动</div>
+            <div id="meta-value-focus" class="meta-value">等待下一步开发指令</div>
+          </div>
+          <div class="meta-grid meta-grid--compact">
             <div class="meta-item">
               <div id="meta-label-branch" class="meta-label">当前分支</div>
               <div id="meta-value-branch" class="meta-value meta-value--mono">master</div>
@@ -92,33 +91,28 @@
               <div id="meta-label-changes" class="meta-label">变更文件</div>
               <div id="meta-value-changes" class="meta-value">0 files</div>
             </div>
-            <div class="meta-item">
-              <div id="meta-label-motion" class="meta-label">动作节奏</div>
-              <div id="meta-value-motion" class="meta-value">120ms linear</div>
-            </div>
-            <div class="meta-item">
-              <div id="meta-label-bubbles" class="meta-label">气泡节奏</div>
-              <div id="meta-value-bubbles" class="meta-value">8s / 18s</div>
-            </div>
-            <div class="meta-item meta-item--wide">
+            <div class="meta-item meta-item--wide meta-item--source">
               <div id="meta-label-mode" class="meta-label">状态来源</div>
-              <div id="meta-value-mode" class="meta-value">Auto · recent commit</div>
+              <div id="meta-value-mode" class="meta-value">自动检测 · idle</div>
             </div>
-            <div class="meta-item meta-item--wide">
+          </div>
+          <div id="meta-command" class="meta-command">
+            <div class="meta-command-head">
               <div id="meta-label-command" class="meta-label">运行命令</div>
-              <div id="meta-value-command" class="meta-value meta-value--mono">Waiting for the next development task</div>
+              <div id="meta-command-badge" class="meta-command-badge">最近活动</div>
             </div>
+            <div id="meta-value-command" class="meta-value meta-value--mono">等待下一步开发指令</div>
           </div>
-          <div class="meta-spectrum">
-            <div id="meta-label-palette" class="meta-label">办公室色谱</div>
-            <div id="palette-list" class="palette-row"></div>
-          </div>
+          <details id="meta-files-details" class="meta-files-details" hidden>
+            <summary id="meta-files-summary">查看变更文件</summary>
+            <div id="meta-files-list" class="meta-files-list"></div>
+          </details>
         </div>
       </article>
     </section>
   </main>
 
   <script src="/static/vendor/phaser-3.80.1.min.js"></script>
-  <script type="module" src="/static/src/main.js?v=step12b"></script>
+  <script type="module" src="/static/src/main.js?v=step13b"></script>
 </body>
 </html>

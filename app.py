@@ -15,15 +15,15 @@ app = Flask(__name__, static_folder=str(FRONTEND), static_url_path="/static")
 MEMOS = {
     "zh": {
         "date": "2026-02-26",
-        "memo": "昨晚把状态桥接接进页面。\n右侧说明栏已经升级成办公室情报卡。\n下一步继续压缩文案层级，并把它收成更像直播面板的成品。",
+        "memo": "昨晚把真实开发元信息接进右侧卡片。\n今天把它收成带状态色、活动命令和折叠文件清单的直播面板。\n下一步继续增强历史活动与时间线。",
     },
     "en": {
         "date": "2026-02-26",
-        "memo": "Last night the live status bridge was wired into the page.\nThe right notes block has already become an office info card.\nNext up: compress the copy hierarchy and make it feel more like a live status dashboard.",
+        "memo": "Last night the right card was connected to real development metadata.\nToday it became a live panel with state colors, active commands, and a folded changed-file list.\nNext up: add activity history and a compact timeline.",
     },
     "ja": {
         "date": "2026-02-26",
-        "memo": "昨夜、ライブ状態ブリッジをページへ接続しました。\n右側の説明欄はすでにオフィス情報カードへ更新済みです。\n次は文言の階層を圧縮し、より配信中の状態パネルらしく整えます。"
+        "memo": "昨夜、右側カードを実際の開発メタ情報へ接続しました。\n今日は状態色、実行コマンド、折りたたみ式の変更ファイル一覧を備えたライブパネルに仕上げました。\n次は活動履歴とコンパクトなタイムラインを追加します。",
     },
 }
 

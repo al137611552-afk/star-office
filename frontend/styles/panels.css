@@ -379,39 +379,119 @@
   background: rgba(255, 255, 255, 0.08);
 }
 
+#meta-panel {
+  --meta-accent: #8fa36b;
+  --meta-accent-rgb: 143, 163, 107;
+  transition: border-color 120ms linear, box-shadow 120ms linear;
+  box-shadow: inset 0 0 0 1px rgba(var(--meta-accent-rgb), 0.12);
+}
+
+#meta-panel[data-state='writing'] {
+  --meta-accent: #ffd700;
+  --meta-accent-rgb: 255, 215, 0;
+}
+
+#meta-panel[data-state='researching'] {
+  --meta-accent: #60a5fa;
+  --meta-accent-rgb: 96, 165, 250;
+}
+
+#meta-panel[data-state='executing'] {
+  --meta-accent: #22c55e;
+  --meta-accent-rgb: 34, 197, 94;
+}
+
+#meta-panel[data-state='syncing'] {
+  --meta-accent: #a78bfa;
+  --meta-accent-rgb: 167, 139, 250;
+}
+
+#meta-panel[data-state='error'] {
+  --meta-accent: #e94560;
+  --meta-accent-rgb: 233, 69, 96;
+}
+
+#meta-panel[data-mode='manual'] .meta-state-chip {
+  border-style: dashed;
+}
+
+#meta-panel .panel-title {
+  color: var(--meta-accent);
+  margin-bottom: 6px;
+  padding-bottom: 3px;
+}
+
 .meta-card {
+  position: relative;
   display: grid;
-  gap: 10px;
-  padding: 8px 4px 0;
+  gap: 5px;
+  padding: 0 4px;
+}
+
+.meta-live-row,
+.meta-command-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
 }
 
 .meta-kicker {
   color: #9fb06b;
-  font-size: 10px;
+  font-size: 9px;
   line-height: 12px;
   letter-spacing: 1px;
 }
 
-.meta-summary {
-  min-height: 40px;
-  color: #d7dee8;
+.meta-state-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 64px;
+  padding: 3px 6px;
+  border: 1px solid rgba(var(--meta-accent-rgb), 0.58);
+  color: var(--meta-accent);
+  background: rgba(var(--meta-accent-rgb), 0.1);
   font-size: 10px;
-  line-height: 14px;
+  line-height: 12px;
 }
 
+.meta-state-dot {
+  width: 6px;
+  height: 6px;
+  background: var(--meta-accent);
+  box-shadow: 0 0 7px rgba(var(--meta-accent-rgb), 0.8);
+  animation: meta-pulse 1.4s steps(2, end) infinite;
+}
+
+@keyframes meta-pulse {
+  50% { opacity: 0.42; }
+}
+
+.meta-summary {
+  display: none;
+}
+
+.meta-focus-block,
+.meta-command {
+  padding: 5px 7px;
+  background: rgba(11, 16, 26, 0.62);
+  border-left: 2px solid var(--meta-accent);
+  box-shadow: inset 0 0 0 1px rgba(var(--meta-accent-rgb), 0.08);
+  min-width: 0;
+}
 
 .meta-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
+  gap: 6px;
 }
 
 .meta-item {
-  min-height: 56px;
-  padding: 8px;
-  background: rgba(11, 16, 26, 0.58);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  min-height: 32px;
+  padding: 5px 6px;
+  background: rgba(11, 16, 26, 0.54);
+  border: 1px solid rgba(255, 255, 255, 0.05);
   min-width: 0;
 }
 
@@ -419,33 +499,105 @@
   grid-column: 1 / -1;
 }
 
+.meta-item--source {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 26px;
+}
+
+.meta-item--source .meta-value {
+  margin-top: 0;
+  text-align: right;
+}
+
 .meta-label {
-  color: #a4b4c9;
-  font-size: 10px;
-  line-height: 12px;
-  letter-spacing: 1px;
+  color: #98a9bf;
+  font-size: 9px;
+  line-height: 11px;
+  letter-spacing: 0.7px;
   text-transform: uppercase;
 }
 
 .meta-value {
-  margin-top: 5px;
+  margin-top: 3px;
   color: #f6e7af;
-  font-size: 13px;
-  line-height: 17px;
+  font-size: 11px;
+  line-height: 14px;
   min-width: 0;
-  word-break: break-word;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .meta-value--mono {
   font-family: 'ArkPixelLatin', monospace;
-  font-size: 12px;
+  font-size: 10px;
+  white-space: nowrap;
 }
 
+.meta-command {
+  border-left-color: rgba(152, 169, 191, 0.55);
+}
 
-.meta-spectrum {
-  display: grid;
-  gap: 8px;
-  padding: 8px;
-  background: rgba(11, 16, 26, 0.42);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+.meta-command.is-live {
+  border-left-color: #22c55e;
+  background: rgba(34, 197, 94, 0.07);
+}
+
+.meta-command-badge {
+  padding: 2px 5px;
+  border: 1px solid rgba(152, 169, 191, 0.34);
+  color: #aeb9c8;
+  font-size: 8px;
+  line-height: 10px;
+}
+
+.meta-command.is-live .meta-command-badge {
+  color: #9ff0b9;
+  border-color: rgba(34, 197, 94, 0.55);
+  animation: meta-pulse 1.4s steps(2, end) infinite;
+}
+
+.meta-files-details {
+  position: relative;
+  color: #b9c6d7;
+  font-size: 9px;
+  line-height: 12px;
+}
+
+.meta-files-details summary {
+  cursor: pointer;
+  padding: 3px 7px;
+  border: 1px solid rgba(var(--meta-accent-rgb), 0.22);
+  background: rgba(var(--meta-accent-rgb), 0.06);
+  color: var(--meta-accent);
+  list-style-position: inside;
+}
+
+.meta-files-list {
+  position: absolute;
+  z-index: 30;
+  left: 0;
+  right: 0;
+  bottom: 25px;
+  max-height: 104px;
+  overflow-y: auto;
+  padding: 6px;
+  background: rgba(8, 12, 20, 0.98);
+  border: 1px solid rgba(var(--meta-accent-rgb), 0.55);
+  box-shadow: 0 -6px 18px rgba(0, 0, 0, 0.42);
+}
+
+.meta-file-item {
+  padding: 3px 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: 'ArkPixelLatin', monospace;
+  color: #d7dee8;
+}
+
+.meta-file-item + .meta-file-item {
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
 }
